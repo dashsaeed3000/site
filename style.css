@@ -57,17 +57,17 @@
 /* Dark Theme (Default) */
 html.theme-dark,
 html:not(.theme-bright) {
-    --color-bg-dark: #1a2238;
-    --color-bg-main: #272727;
-    --color-bg-secondary: #323232;
-    --color-bg-tertiary: #373737;
-    --color-accent: #2563eb;
-    --color-accent-light: #bae6fd;
-    --color-text: #64748b;
-    --color-text-light: #999;
-    --color-heading: #fff;
-    --color-border: #323232;
-    --color-border-light: #373737;
+    --color-bg-dark: #071129; /* deep navy background */
+    --color-bg-main: #0f2a4b; /* main navy panels */
+    --color-bg-secondary: #12365a; /* slightly lighter navy */
+    --color-bg-tertiary: #16466e; /* tertiary navy for accents */
+    --color-accent: #2b6ef6; /* brighter blue accent */
+    --color-accent-light: #9fc9ff; /* light blue accent */
+    --color-text: #b8c7da; /* light bluish text */
+    --color-text-light: #a3b1c3;
+    --color-heading: #ffffff;
+    --color-border: #0c2846; /* dark navy border */
+    --color-border-light: #123254;
 }
 
 /* Bright Theme */
