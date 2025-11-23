@@ -298,6 +298,24 @@ input[type="checkbox"] {
 
 .o-hidden {
     overflow: hidden;
+    position: relative;
+}
+
+/* Faded, blurry blue overlay for o-hidden */
+.o-hidden::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(7,17,41,0.18) 0%, rgba(43,110,246,0.12) 100%);
+    backdrop-filter: blur(8px);
+    border-radius: inherit;
+}
+.o-hidden > * {
+    position: relative;
+    z-index: 2;
+}
 }
 .position-re {
     position: relative;
