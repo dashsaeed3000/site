@@ -17,11 +17,11 @@
       if(mode === 'bright') {
         html.classList.add('theme-bright');
         html.classList.remove('theme-dark');
-        toggleButton.textContent = '🌑 تاریک';
+        toggleButton.textContent = '🌙';
       } else {
         html.classList.remove('theme-bright');
         html.classList.add('theme-dark');
-        toggleButton.textContent = '🌙 روشن';
+        toggleButton.textContent = '☀️';
       }
       localStorage.setItem('site-theme', mode);
     }
