@@ -84,6 +84,42 @@ html.theme-bright {
     --color-border: #e0e0e0;
     --color-border-light: #d0d0d0;
 }
+/* Force overlay and panel elements to follow navy variables in dark theme */
+html.theme-dark .banner-img:after,
+html.theme-dark #preloader:after,
+html.theme-dark #preloader:before,
+html.theme-dark .dropdown-menu,
+html.theme-dark .sub-menu,
+html.theme-dark .dropdown-menu .dropdown-item em,
+html.theme-dark .gallery-box:hover .gallery-img:after,
+html.theme-dark .gallery-box .gallery-img:after,
+html.theme-dark .team .info .social,
+html.theme-dark .blog-sidebar .widget,
+html.theme-dark .sidebar .sidebar-widget .widget-inner,
+html.theme-dark .bauen-blog .item .con,
+html.theme-dark .clients,
+html.theme-dark .main-footer.dark,
+html.theme-dark #preloader,
+html.theme-dark .left-panel,
+html.theme-dark .social-left {
+    background: var(--color-bg-main) !important;
+    background-color: var(--color-bg-main) !important;
+}
+html.theme-dark .content-lines-inner,
+html.theme-dark .content-lines,
+html.theme-dark .about .about-img .img:before,
+html.theme-dark .sidebar-title,
+html.theme-dark .testimonials-box .head-box h4,
+html.theme-dark .projects-prev-next,
+html.theme-dark .pagination a {
+    border-color: var(--color-border) !important;
+}
+/* make subtle overlays use semi-transparent navy */
+html.theme-dark .gallery-box:hover .gallery-img:after,
+html.theme-dark .banner-img:after {
+    background: linear-gradient(to top, rgba(7,17,41,1) 0%, rgba(7,17,41,0.8) 100%);
+}
+
 html,
 body {
     -moz-osx-font-smoothing: grayscale;
@@ -216,7 +252,7 @@ input[type="submit"]:hover,
 input[type="reset"]:hover,
 input[type="button"]:hover,
 button:hover {
-    background-color: #323232;
+    background-color: var(--color-bg-secondary);
     color: #999;
     border: 1px solid transparent;
 }
@@ -1466,7 +1502,7 @@ html.theme-bright #theme-toggle:hover {
 .projects-prev-next {
   padding: 40px 0;
   border: none;
-  border-top: 1px solid #323232;
+    border-top: 1px solid var(--color-border);
 }
 @media (max-width: 576px) {
   .projects-prev-next {
