@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}خانه - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Slider -->
+<header id="home" class="header slider-fade" data-scroll-index="0">
+    <div class="owl-carousel owl-theme">
+        <!-- The opacity on the image is made with "data-overlay-dark="number". You can change it using the numbers 0-9. -->
+        {% if sliders %}
+            {% for slider in sliders %}
+            <div class="text-right item bg-img" data-background="{% if slider.image %}{{ slider.image }}{% else %}{{ url_for('static', filename='img/slider/10.jpg') }}{% endif %}">
+                <div class="v-middle caption mt-30">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-7 offset-md-5">
+                                <div class="o-hidden  p-2 rounded">
+                                    <h1>{% if slider.title %}{{ slider.title }}{% else %}طراحی خلاقانه{% endif %}</h1>
+                                    <p>{% if slider.content %}{{ slider.content|safe }}{% else %}لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است{% endif %}</p>
+                                    {% if slider.link %}
+                                    <div class="butn-light mt-30 mb-30"><a href="{{ slider.link }}" target="_blank"><span>{% if slider.link_text %}{{ slider.link_text }}{% else %}اکنون خرید کنید{% endif %}</span></a></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Default slider if no content in database -->
+            <div class="text-right item bg-img" data-background="{{ url_for('static', filename='img/slider/10.jpg') }}">
+                <div class="v-middle caption mt-30">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-7 offset-md-5">
+                                <div class="o-hidden  p-2 rounded">
+                                    <h1>طراحی خلاقانه</h1>
+                                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ
+                                        <br>و با استفاده از طراحان گرافیک است
+                                    </p>
+                                    <div class="butn-light mt-30 mb-30"><a href="#" target="_blank"><span>اکنون خرید کنید</span></a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <!-- Corner -->
+    <div class="hero-corner"></div>
+    <div class="hero-corner3"></div>
+    <!-- Left Panel -->
+    <div class="left-panel">
+        <ul class="social-left clearfix">
+            <li><a href="#"><i class="ti-pinterest"></i></a></li>
+            <li><a href="#"><i class="ti-instagram"></i></a></li>
+            <li><a href="#"><i class="ti-twitter"></i></a></li>
+            <li><a href="#"><i class="ti-facebook"></i></a></li>
+        </ul>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- About -->
+<section id="about" class="about section-padding" data-scroll-index="1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-30 animate-box" data-animate-effect="fadeInUp">
+                {% set about_content = site_content.get('about') %}
+                <h2 class="section-title">{% if about_content and about_content.Title %}{{ about_content.Title }}{% else %}درباره <span>شرکت</span>{% endif %}</h2>
+                {% if about_content and about_content.Content %}
+                    {{ about_content.Content|safe }}
+                {% else %}
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                {% endif %}
+            </div>
+            <div class="col-md-6 animate-box" data-animate-effect="fadeInUp">
+                <div class="about-img">
+                    <div class="img"> <img src="{% if about_content and about_content.ImageUrl %}{{ about_content.ImageUrl }}{% else %}{{ url_for('static', filename='img/about.jpg') }}{% endif %}" class="img-fluid" alt=""> </div>
+                    <div class="about-img-2 about-buro">{% if about_content and about_content.Field1 %}{{ about_content.Field1 }}{% else %}دفتر کانادا{% endif %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Projects -->
+<section id="projects" class="projects section-padding" data-scroll-index="2">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="section-title"><span>محصولات</span> ما</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% if products and products|length > 0 %}
+                <div class="owl-carousel owl-theme">
+                    {% for product in products %}
+                    {% if product.IsActive and not product.IsDeleted %}
+                    <div class="item">
+                        <div class="position-re o-hidden">
+                            <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
+                                 alt="{{ product.Title }}"
+                                 style="width: 100%; height: 300px; object-fit: cover;">
+                        </div>
+                        <div class="con">
+                            {% if product.category %}
+                            <h6><a href="{{ url_for('main.product_detail', slug=product.Slug) }}">{{ product.category.Title }}</a></h6>
+                            {% endif %}
+                            <h5><a href="{{ url_for('main.product_detail', slug=product.Slug) }}">{{ product.Title }}</a></h5>
+                            {% if product.Price %}
+                            <p class="product-price" style="color: #b19777; font-weight: bold; margin: 10px 0;">
+                                {{ "{:,.0f}".format(product.Price|float) }} تومان
+                            </p>
+                            {% endif %}
+                            <div class="line"></div> 
+                            <a href="{{ url_for('main.product_detail', slug=product.Slug) }}"><i class="ti-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <!-- Default products if no products in database -->
+                <div class="owl-carousel owl-theme">
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/projects/1.jpg') }}" alt=""> </div>
+                        <div class="con">
+                            <h6><a href="{{ url_for('main.product_detail', slug='sample') }}">داخلی</a></h6>
+                            <h5><a href="{{ url_for('main.product_detail', slug='sample') }}">خانه</a></h5>
+                            <div class="line"></div> <a href="{{ url_for('main.product_detail', slug='sample') }}"><i class="ti-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/projects/7.jpg') }}" alt=""> </div>
+                        <div class="con">
+                            <h6><a href="{{ url_for('main.product_detail', slug='sample') }}">خارجی</a></h6>
+                            <h5><a href="{{ url_for('main.product_detail', slug='sample') }}">مرکز آرمادا</a></h5>
+                            <div class="line"></div> <a href="{{ url_for('main.product_detail', slug='sample') }}"><i class="ti-arrow-right"></i></a>
+                        </div>
+                    </div>
+                        </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Services -->
+<section id="services" class="services section-padding" data-scroll-index="3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                {% set services_title = site_content.get('services_title') %}
+                <h2 class="section-title">{% if services_title and services_title.Title %}{{ services_title.Title }}{% else %}دیگر <span>خدمات</span>{% endif %}</h2>
+            </div>
+        </div>
+        <div class="row">
+            {% if services %}
+                {% for service in services %}
+                <div class="col-md-4">
+                    <div class="item">
+                        <a href="{{ url_for('main.index') }}#services"> 
+                            <img src="{% if service.image %}{{ service.image }}{% else %}{{ url_for('static', filename='img/icons/icon-1.png') }}{% endif %}" alt="">
+                            <h5>{% if service.title %}{{ service.title }}{% else %}خدمات{% endif %}</h5>
+                            <div class="line"></div>
+                            <p>{% if service.content %}{{ service.content }}{% else %}لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است{% endif %}</p>
+                            <div class="numb">{% if service.number %}{{ service.number }}{% else %}{% if loop.index < 10 %}0{{ loop.index }}{% else %}{{ loop.index }}{% endif %}{% endif %}</div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Default services if no content in database -->
+                <div class="col-md-4">
+                    <div class="item">
+                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-1.png') }}" alt="">
+                            <h5>معماری</h5>
+                            <div class="line"></div>
+                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
+                            <div class="numb">01</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item">
+                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-2.png') }}" alt="">
+                            <h5>طراحی داخلی</h5>
+                            <div class="line"></div>
+                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
+                            <div class="numb">02</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item">
+                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-3.png') }}" alt="">
+                            <h5>طراحی شهری</h5>
+                            <div class="line"></div>
+                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
+                            <div class="numb">03</div>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<!-- Blog -->
+<section id="blog" class="bauen-blog section-padding" data-scroll-index="4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="section-title">آخرین <span>اخبار</span></h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="owl-carousel owl-theme">
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" alt=""> </div>
+                    </div>
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/slider/2.jpg') }}" alt=""> </div>
+                    </div>
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/slider/3.jpg') }}" alt=""> </div>
+                    </div>
+                    <div class="item">
+                        <div class="position-re o-hidden"> <img src="{{ url_for('static', filename='img/slider/4.jpg') }}" alt=""> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Contact -->
+<section id="contact" class="section-padding" data-scroll-index="5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 animate-box" data-animate-effect="fadeInUp">
+                {% set contact_title = site_content.get('contact_title') %}
+                <h2 class="section-title">{% if contact_title and contact_title.Title %}{{ contact_title.Title }}{% else %}تماس با  <span>ما</span>{% endif %}</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-30 animate-box" data-animate-effect="fadeInUp">
+                {% set contact_info = site_content.get('contact_info') %}
+                {% if contact_info and contact_info.Content %}
+                    {{ contact_info.Content|safe }}
+                {% else %}
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                {% endif %}
+                {% set contact_reg = site_content.get('contact_reg') %}
+                {% if contact_reg and contact_reg.Field1 %}
+                    <p><b>کد نشان ثبت :</b> {{ contact_reg.Field1 }}</p>
+                {% else %}
+                    <p><b>کد نشان ثبت :</b> IR002323065B06</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4 mb-30 animate-box" data-animate-effect="fadeInUp">
+                {% set contact_details = site_content.get('contact_details') %}
+                <p><b>تلفن :</b> {% if contact_details and contact_details.Field1 %}{{ contact_details.Field1 }}{% else %}+98 203-123-0606{% endif %}</p>
+                <p><b>ایمیل :</b> {% if contact_details and contact_details.Field2 %}{{ contact_details.Field2 }}{% else %}architecture@gmail.com{% endif %}</p>
+                <p><b>آدرس :</b> {% if contact_details and contact_details.Field3 %}{{ contact_details.Field3 }}{% else %}ایران-مشهد-بلوار سجاد{% endif %}</p>
+            </div>
+            <div class="col-md-4 animate-box" data-animate-effect="fadeInUp">
+                <form method="post" class="row">
+                    <div class="col-md-12">
+                        <input type="text" name="name" id="name" placeholder="نام کاما">
+                    </div>
+                    <div class="col-md-12">
+                        <input type="email" name="email" id="email" placeholder="ایمیل شما" required="">
+                    </div>
+                    <div class="col-md-12">
+                        <textarea name="message" id="message" cols="40" rows="3" placeholder="پیام شما"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <button class="butn-dark mt-15"><a href="#0"><span>ارسال</span></a></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Promo video - Testiominals -->
+<section class="testimonials">
+    <div class="background bg-img bg-fixed section-padding pb-0" data-background="{{ url_for('static', filename='img/banner2.jpg') }}">
+        <div class="container">
+            <div class="row">
+                <!-- Promo video -->
+                <div class="col-md-6">
+                    <div class="vid-area">
+                        <div class="vid-icon">
+                            {% set promo_video = site_content.get('promo_video') %}
+                            <a class="play-button vid" href="{% if promo_video and promo_video.VideoUrl %}{{ promo_video.VideoUrl }}{% else %}https://youtu.be/RziCmLzpFNY{% endif %}">
+                                <svg class="circle-fill">
+                                    <circle cx="43" cy="43" r="39" stroke="#fff" stroke-width=".5"></circle>
+                                </svg>
+                                <svg class="circle-track">
+                                    <circle cx="43" cy="43" r="39" stroke="none" stroke-width="1" fill="none"></circle>
+                                </svg> <span class="polygon">
+                                    <i class="ti-control-play"></i>
+                                </span> </a>
+                        </div>
+                        <div class="cont mt-15 mb-30">
+                            <h5>{% if promo_video and promo_video.Title %}{{ promo_video.Title }}{% else %}مشاهده ویدیوی تبلیغاتی{% endif %}</h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testiominals -->
+                <div class="col-md-5 offset-md-1">
+                    <div class="testimonials-box animate-box" data-animate-effect="fadeInUp">
+                        <div class="head-box">
+                            {% set testimonials_title = site_content.get('testimonials_title') %}
+                            <h4>{% if testimonials_title and testimonials_title.Title %}{{ testimonials_title.Title }}{% else %}آنچه (مشتریان) می گویند؟{% endif %}</h4>
+                        </div>
+                        <div class="owl-carousel owl-theme">
+                            {% if testimonials %}
+                                {% for testimonial in testimonials %}
+                                <div class="item"> 
+                                    <span class="quote"><img src="{{ url_for('static', filename='img/quot.png') }}" alt=""></span>
+                                    <p>{% if testimonial.text %}{{ testimonial.text }}{% else %}لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است{% endif %}</p>
+                                    <div class="info">
+                                        <div class="author-img"> 
+                                            <img src="{% if testimonial.image %}{{ testimonial.image }}{% else %}{{ url_for('static', filename='img/team/1.jpg') }}{% endif %}" alt=""> 
+                                        </div>
+                                        <div class="cont">
+                                            <h6>{% if testimonial.author %}{{ testimonial.author }}{% else %}آدام همتی{% endif %}</h6> 
+                                            <span>{% if testimonial.role %}{{ testimonial.role }}{% else %}مشتری{% endif %}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default testimonial if no content in database -->
+                                <div class="item"> <span class="quote"><img src="{{ url_for('static', filename='img/quot.png') }}" alt=""></span>
+                                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                                    <div class="info">
+                                        <div class="author-img"> <img src="{{ url_for('static', filename='img/team/1.jpg') }}" alt=""> </div>
+                                        <div class="cont">
+                                            <h6>آدام همتی</h6> <span>مشتری</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Clients -->
+<section class="clients">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 owl-carousel owl-theme">
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/1.png') }}" alt=""></a>
+                </div>
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/2.png') }}" alt=""></a>
+                </div>
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/3.png') }}" alt=""></a>
+                </div>
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/4.png') }}" alt=""></a>
+                </div>
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/5.png') }}" alt=""></a>
+                </div>
+                <div class="clients-logo">
+                    <a href="#0"><img src="{{ url_for('static', filename='img/clients/6.png') }}" alt=""></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

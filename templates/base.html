@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="zxx">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>{% block title %}قالب سایت{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        /* Search Form Styles */
+        .navbar-actions {
+            flex-shrink: 0;
+        }
+        .search-toggle-btn, .theme-toggle-btn {
+            color: #fff !important;
+            background: rgba(0, 31, 63, 0.8) !important;
+            border: none !important;
+            padding: 8px 12px !important;
+            transition: all 0.3s;
+            border-radius: 5px !important;
+        }
+        .search-toggle-btn:hover, .theme-toggle-btn:hover {
+            color: #b19777 !important;
+            background: rgba(0, 31, 63, 0.95) !important;
+        }
+        .search-toggle-btn:focus, .theme-toggle-btn:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(177, 151, 119, 0.5) !important;
+        }
+        #searchCollapse {
+            background: rgba(0, 31, 63, 0.98);
+            border-top: 1px solid rgba(177, 151, 119, 0.3);
+            padding: 8px 0;
+        }
+        .search-form {
+            direction: rtl;
+        }
+        .search-form .form-control {
+            font-family: 'Vazir', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+        .search-form .form-control:focus {
+            border-color: #b19777;
+            box-shadow: 0 0 0 0.2rem rgba(177, 151, 119, 0.25);
+        }
+        .search-form .btn-primary:hover {
+            background: #001f3f !important;
+            border-color: #001f3f !important;
+        }
+        @media (max-width: 768px) {
+            .search-form .input-group {
+                max-width: 100% !important;
+            }
+            .navbar-actions {
+                margin-right: 5px !important;
+                gap: 5px !important;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Progress scroll totop -->
+    <div class="progress-wrap cursor-pointer">
+        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+        </svg>
+    </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <!-- Logo -->
+        <div class="logo-wrapper valign">
+            <div class="logo">
+                <a href="{{ url_for('main.index') }}"> 
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo-img" alt="">
+                    <h2>شرکت<span>طراحی نوآورانه</span></h2>
+                </a>
+            </div>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> 
+            <span class="icon-bar"><i class="ti-line-double"></i></span> 
+        </button>
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">خانه</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#about">درباره ما</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#projects">محصولات</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#services">سرویس ها</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.post' %}active{% endif %}" href="{{ url_for('main.index') }}#blog">وبلاگ</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#contact">تماس با ما</a></li>
+            </ul>
+            <!-- Navbar Actions -->
+            <div class="navbar-actions" style="display: flex; align-items: center; gap: 10px; margin-right: 15px;">
+                <!-- Search Toggle Button -->
+                <button class="btn btn-link search-toggle-btn" type="button" data-toggle="collapse" data-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" style="border: none; padding: 8px 12px; color: #fff; background: rgba(0, 31, 63, 0.8); border-radius: 5px;">
+                    <i class="ti-search" style="font-size: 18px;"></i>
+                </button>
+                <button id="theme-toggle" class="theme-toggle-btn" style="border: none; padding: 8px 12px; color: #fff; background: rgba(0, 31, 63, 0.8); border-radius: 5px; font-size: 18px;">🌙</button>
+            </div>
+        </div>
+        <!-- Collapsible Search Form -->
+        <div class="collapse" id="searchCollapse">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form method="GET" action="{{ url_for('main.search') }}" class="search-form" style="padding: 10px 0;">
+                            <div class="input-group" style="max-width: 500px; margin: 0 auto; direction: rtl;">
+                                <div class="input-group-prepend">
+                                    <button class="btn btn-primary" 
+                                            type="submit"
+                                            style="border-radius: 25px 0 0 25px; background: #b19777; border: 2px solid #b19777; padding: 8px 20px; color: #fff; height: 40px;">
+                                        <i class="ti-search"></i>
+                                    </button>
+                                </div>
+                                <input type="text" 
+                                       name="q" 
+                                       class="form-control" 
+                                       placeholder="جستجوی محصولات..." 
+                                       value="{{ request.args.get('q', '') }}"
+                                       style="border-radius: 0 25px 25px 0; border: 2px solid #b19777; padding: 8px 15px; font-family: 'Vazir', sans-serif; height: 40px; font-size: 14px; direction: rtl; text-align: right;"
+                                       required>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    {% block header %}{% endblock %}
+    
+    <!-- Content -->
+    <div class="content-wrapper">
+        <!-- Lines -->
+        <section class="content-lines-wrapper">
+            <div class="content-lines-inner">
+                <div class="content-lines"></div>
+            </div>
+        </section>
+        
+        {% block content %}{% endblock %}
+        
+        <!-- Footer -->
+        <footer class="main-footer dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-30">
+                        <div class="item fotcont">
+                            <div class="fothead">
+                                <h6>تلفن</h6>
+                            </div>
+                            <p>+98 203-123-0606</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-30">
+                        <div class="item fotcont">
+                            <div class="fothead">
+                                <h6>ایمیل</h6>
+                            </div>
+                            <p>architecture@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-30">
+                        <div class="item fotcont">
+                            <div class="fothead">
+                                <h6>آدرس</h6>
+                            </div>
+                            <p>ایران-مشهد-بلوار سجاد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-left">
+                                <p>فارسی و راست چین شده توسط <a href="https://netcopy.ir">نت کپی</a></p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 abot">
+                            <div class="social-icon"> 
+                                <a href="{{ url_for('main.index') }}"><i class="ti-facebook"></i></a> 
+                                <a href="{{ url_for('main.index') }}"><i class="ti-twitter"></i></a> 
+                                <a href="{{ url_for('main.index') }}"><i class="ti-instagram"></i></a> 
+                                <a href="{{ url_for('main.index') }}"><i class="ti-pinterest"></i></a> 
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="right"><a href="#">قوانین &amp; حریم خصوصی</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- jQuery -->
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-migrate-3.0.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modernizr-2.6.2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scrollIt.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.waypoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.stellar.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.magnific-popup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/YouTubePopUp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

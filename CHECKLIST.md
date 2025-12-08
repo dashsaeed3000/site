@@ -1,0 +1,7 @@
+- Ensure environment variables are set (`.env` file with `DB_URI`).
+- Verify DB connection string in `DB_URI`.
+- Run `scripts/seed.py` and confirm sample products and user created.
+- Check webhooks: set `STRIPE_WEBHOOK_SECRET` and confirm webhook endpoint `/api/v1/payments/webhook` if using Stripe.
+- Run migrations: `alembic upgrade head` (ensure `DB_URI` is set in `.env`).
+- Activate virtual environment: `.\venv\Scripts\Activate.ps1` (Windows) or `source venv/bin/activate` (Linux/Mac).
+- Run application: `python -m app.main`

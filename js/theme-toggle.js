@@ -10,28 +10,34 @@
     }
 
     const html = document.documentElement;
-    // Check saved theme
-    let theme = localStorage.getItem('site-theme') || 'dark';
+    // Check saved theme preference
+    let currentTheme = localStorage.getItem('site-theme') || 'dark';
 
     function setTheme(mode) {
       if(mode === 'bright') {
         html.classList.add('theme-bright');
         html.classList.remove('theme-dark');
         toggleButton.textContent = '🌙';
+        toggleButton.setAttribute('title', 'Switch to dark mode');
       } else {
         html.classList.remove('theme-bright');
         html.classList.add('theme-dark');
         toggleButton.textContent = '☀️';
+        toggleButton.setAttribute('title', 'Switch to light mode');
       }
       localStorage.setItem('site-theme', mode);
+      currentTheme = mode;
     }
 
     // Set initial theme
-    setTheme(theme);
+    setTheme(currentTheme);
 
-    toggleButton.addEventListener('click', function() {
-      theme = (theme === 'dark') ? 'bright' : 'dark';
-      setTheme(theme);
+    // Add click event listener
+    toggleButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const newTheme = (currentTheme === 'dark') ? 'bright' : 'dark';
+      setTheme(newTheme);
     });
   }
 

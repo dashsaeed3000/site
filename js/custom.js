@@ -317,19 +317,7 @@ $(document).ready(function() {
     });
 });
 
-// Preloader page
-paceOptions = {
-    ajax: true,
-    document: true,
-    eventLag: false
-};
-//Pace.on('done', function () {
-//    $('#preloader').addClass("isdone");
-//    $('.loading-text').addClass("isdone");
-//});
-Pace.on('done', function() {
-  $('#preloader').delay(500).fadeOut(800);
-});
+// Preloader page - Pace removed
 
 
 // Accordion Box

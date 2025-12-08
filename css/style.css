@@ -58,7 +58,7 @@
 html.theme-dark,
 html:not(.theme-bright) {
     --color-bg-dark: #1a2238;
-    --color-bg-main: #272727;
+    --color-bg-main: #001f3f;
     --color-bg-secondary: #323232;
     --color-bg-tertiary: #373737;
     --color-accent: #2563eb;
@@ -393,7 +393,10 @@ input[type="checkbox"] {
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, padding 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* Theme Toggle Button */
@@ -448,18 +451,34 @@ html.theme-bright #theme-toggle:hover {
     }
 }
 .navbar .icon-bar {
-    color: #050042;
+    color: #fff;
+    display: block;
+}
+.navbar-toggler {
+    border: none;
+    background: transparent;
+}
+.navbar .navbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 .navbar .navbar-nav .nav-link {
     font-family: "Vazir";
-    font-size: 15px;
-    font-weight: 300;
+    font-size: 14px;
+    font-weight: 400;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 4px;
-    margin: 5px 5px;
-    -webkit-transition: all .4s;
-    transition: all .4s;
+    letter-spacing: 2px;
+    margin: 0 8px;
+    padding: 8px 12px;
+    position: relative;
+    -webkit-transition: all .3s ease;
+    transition: all .3s ease;
+    border-radius: 4px;
+    background: rgba(0, 31, 63, 0.6);
+    border: none !important;
 }
 .navbar .navbar-nav .nav-link.black-color {
     color: #fff;
@@ -471,22 +490,31 @@ html.theme-bright #theme-toggle:hover {
     color: #050042 !important;
 }
 .nav-scroll {
-    background: var(--color-bg-main);
+    background: #001f3f;
     padding: 0 10% 0 0;
     position: fixed;
     top: -100px;
     left: 0;
     width: 100%;
-    -webkit-transition: -webkit-transform .5s, background 0.3s ease;
-    transition: -webkit-transform .5s, transform .5s, background 0.3s ease;
-    transition: transform .5s, -webkit-transform .5s, background 0.3s ease;
+    -webkit-transition: -webkit-transform .5s, background 0.3s ease, padding 0.3s ease;
+    transition: -webkit-transform .5s, transform .5s, background 0.3s ease, padding 0.3s ease;
+    transition: transform .5s, -webkit-transform .5s, background 0.3s ease, padding 0.3s ease;
     -webkit-transform: translateY(100px);
     transform: translateY(100px);
-    -webkit-box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .nav-scroll .icon-bar {
-    color: #b19777;
+    color: #fff;
+}
+.nav-scroll .navbar-toggler {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.nav-scroll .navbar-toggler:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 .nav-scroll .navbar-nav .nav-link {
     color: #fff;
@@ -532,14 +560,17 @@ html.theme-bright #theme-toggle:hover {
     display: none !important;
 }
 .nav-scroll .logo-wrapper {
-    padding: 15px 70px 15px 150px;
-    background: var(--color-bg-main);
+    padding: 12px 50px 12px 120px;
+    background: #001f3f;
 }
 .logo-wrapper {
     float: left;
     background: var(--color-bg-main);
     padding: 30px 50px;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, padding 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .logo-wrapper .logo h2 {
     font-family: "Vazir";
@@ -616,7 +647,7 @@ html.theme-bright #theme-toggle:hover {
     padding: 15px 10px;
     border-radius: 0;
     border: 0;
-    background-color: #272727;
+    background-color: #001f3f;
     -webkit-box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.05);
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.05);
     -webkit-transition: all .3s;
@@ -658,7 +689,7 @@ html.theme-bright #theme-toggle:hover {
 .dropdown-menu .dropdown-item em,
 .sub-menu .dropdown-item em {
     font-size: 8px;
-    background-color: #272727;
+    background-color: #001f3f;
     padding: 2px 4px;
     color: #fff;
     border-radius: 2px;
@@ -717,10 +748,10 @@ html.theme-bright #theme-toggle:hover {
     .navbar {
         padding-right: 0px;
         padding-right: 0px;
-        background: #272727;
+        background: #001f3f;
     }
     .nav-scroll {
-        background: #272727;
+        background: #001f3f;
     }
     .logo-wrapper {
         float: left;
@@ -728,7 +759,7 @@ html.theme-bright #theme-toggle:hover {
     }
     .nav-scroll .logo-wrapper {
         padding: 15px;
-        background-color: #272727;
+        background-color: #001f3f;
     }
 }
 
@@ -740,6 +771,10 @@ html.theme-bright #theme-toggle:hover {
 }
 .header .caption .o-hidden {
     display: inline-block;
+    background: rgba(0, 31, 63, 0.6);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: none !important;
 }
 .header .caption h2 {
     font-weight: 400;
@@ -797,7 +832,7 @@ html.theme-bright #theme-toggle:hover {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #272727;
+    background: #001f3f;
     position: absolute;
     top: 10px;
     right: 0;
@@ -963,7 +998,7 @@ html.theme-bright #theme-toggle:hover {
 
 /* ======= Page Banner Header style ======= */
 .banner-header {
-    height: 50vh;
+    height: 28vh;
     z-index: -2;
 }
 .banner-header h6 {
@@ -1099,7 +1134,7 @@ html.theme-bright #theme-toggle:hover {
 .about .about-img .img img {
     position: relative;
     z-index: 2;
-    background: #272727;
+    background: #001f3f;
 }
 .about-img-2 {
     position: relative
@@ -1576,11 +1611,11 @@ html.theme-bright #theme-toggle:hover {
     font-size: 14px;
 }
 .gallery-box .gallery-detail i {
-    color: #272727;
+    color: #001f3f;
     padding: 8px;
 }
 .gallery-box .gallery-detail i:hover {
-    color: #272727;
+    color: #001f3f;
 }
 .gallery-box:hover .gallery-detail {
     top: 50%;
@@ -2129,7 +2164,7 @@ button.mfp-arrow {
     width: 100%;
     padding: 10px;
     border: 0;
-    background: #272727;
+    background: #001f3f;
 	margin-bottom: 0;
 }
 .blog-sidebar .search form button {
@@ -2156,7 +2191,7 @@ button.mfp-arrow {
 }
 .blog-sidebar ul.tags li:hover,
 .blog-sidebar ul.tags li a:hover {
-    background-color: #272727;
+    background-color: #001f3f;
     color: #fff;
 }
 
@@ -2351,7 +2386,7 @@ button.mfp-arrow {
     transition: width 0.3s ease;
 }
 .butn-light a:hover span {
-    color: #272727;
+    color: #001f3f;
 }
 
 
@@ -2473,49 +2508,7 @@ button.mfp-arrow {
 
 
 /* ======= Preloader Style ======= */
-.pace {
-    pointer-events: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    z-index: 99999999999999;
-    position: fixed;
-    margin: auto;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 400px;
-    border: 0px;
-    height: 1px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
-    -webkit-transition: all 1s;
-    -o-transition: all 1s;
-    transition: all 1s;
-}
-.pace .pace-progress {
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    max-width: 300px;
-    position: fixed;
-    z-index: 99999999999999;
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 100%;
-    height: 100%;
-    width: 100%;
-    background: #b19777;
-}
-.pace.pace-inactive {
-    width: 100vw;
-    opacity: 0;
-}
-.pace.pace-inactive .pace-progress {
-    max-width: 100vw;
-}
+/* Pace progress removed */
 #preloader {
     width: 100%;
     height: 100vh;
@@ -2530,7 +2523,7 @@ button.mfp-arrow {
     left: 0;
     height: 50%;
     width: 100%;
-    background: #272727;
+    background: #001f3f;
     -webkit-transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
     -o-transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
     transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
@@ -2818,7 +2811,7 @@ button.mfp-arrow {
     bottom: 0;
     left: 100%;
     z-index: 1;
-    background: #272727;
+    background: #001f3f;
     color: #fff;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -3008,7 +3001,7 @@ button.mfp-arrow {
 	position: relative;
 	background-blend-mode: overlay;
 	background: rgba(0,0,0,.6);
-	background-image: url("../img/slider/1.jpg");
+	background-image: url(../img/slider/1.jpg);
 	background-size: cover;
 	background-position: center;
 	background-attachment: fixed;
@@ -3140,13 +3133,22 @@ button.mfp-arrow {
     .logo-img {
         margin-bottom: 0px;
     }
-    .navbar button {
+    .navbar button.navbar-toggler {
         margin-right: 15px;
+        margin-left: auto;
         outline: none !important;
-        background: #272727;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
     }
-    .navbar button:hover {
-        background: #272727;
+    .navbar button.navbar-toggler:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    .navbar button.navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
     }
     .navbar .container {
         max-width: 100%;
@@ -3154,21 +3156,37 @@ button.mfp-arrow {
     .navbar .navbar-collapse {
         max-height: 360px;
         overflow: auto;
-        background: #272727;
+        background: #001f3f;
         text-align: right;
-        padding: 15px 30px 30px 15px
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-top: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     }
     .navbar .nav-link {
-        margin: 0px auto !important;
+        margin: 5px 0 !important;
+        width: 100%;
+        text-align: right;
     }
     .navbar .navbar-nav .nav-link {
-        color: #999;
+        color: #fff;
+    }
+    .navbar .navbar-nav .nav-link:hover {
+        color: #b19777;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .nav-scroll .navbar-collapse {
+        background: #001f3f;
     }
     .nav-scroll .navbar-collapse .nav-link {
-        color: #999 !important;
+        color: #fff !important;
+    }
+    .nav-scroll .navbar-collapse .nav-link:hover {
+        color: #b19777 !important;
     }
     .nav-scroll .navbar-collapse .active {
-        color: #999 !important;
+        color: #b19777 !important;
+        background: rgba(177, 151, 119, 0.15);
     }
     .dropdown-menu {
         opacity: 1;

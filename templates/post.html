@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}پست - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Post -->
+<section class="pb-90">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="mb-30" alt="">
+                <h2 class="section-title2">لورم ایپسوم متن ساختگی با تولید سادگی </h2>
+                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده </p>
+                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده </p>
+            </div>
+        </div>
+        <div class="bauen-comment-section">
+            <div class="row">
+                <!-- Comment -->
+                <div class="col-md-7">
+                    <div class="bauen-post-comment-wrap">
+                        <div class="bauen-user-comment"> <img src="{{ url_for('static', filename='img/team/1.jpg') }}" alt=""> </div>
+                        <div class="bauen-user-content">
+                            <h3>حسین امانی<span> 22 مرداد 1400</span></h3>
+                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p> 
+                            <a class="bauen-repay" href="#">پاسخ<i class="ti-back-left"></i></a> 
+                        </div>
+                    </div>
+                </div>
+                <!-- Contact Form -->
+                <div class="col-md-4 offset-md-1">
+                    <h3>پاسخ دهید</h3>
+                    <form method="post" class="row">
+                        <div class="col-md-12">
+                            <input type="text" name="name" id="name" placeholder="نام کامل *" required=""> 
+                        </div>
+                        <div class="col-md-12">
+                            <input type="email" name="email" id="email" placeholder="آدرس ایمیل *" required=""> 
+                        </div>
+                        <div class="col-md-12">
+                            <textarea name="message" id="message" cols="40" rows="4" placeholder="کامنت شما *" required=""></textarea>
+                        </div>
+                        <div class="col-md-12 mt-15">
+                            <button class="butn-dark"><a href="#0"><span>ارسال</span></a></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

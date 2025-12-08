@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{% if product %}{{ product.Title }}{% else %}پروژه - قالب سایت{% endif %}{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Projects  -->
+<section class="section-padding2">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="section-title2">
+                    {% if product %}
+                        {{ product.Title }}
+                    {% else %}
+                        لورم ایپسوم متن ساختگی
+                    {% endif %}
+                </h2> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                {% if product %}
+                    <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" class="mb-30 img-fluid" alt="{{ product.Title }}">
+                    {% if product.Description %}
+                        <p>{{ product.Description }}</p>
+                    {% endif %}
+                    {% if product.ShortDescription %}
+                        <p>{{ product.ShortDescription }}</p>
+                    {% endif %}
+                {% else %}
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                    <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if product %}
+                    {% if product.Price %}
+                        <p><b>قیمت : </b> {{ product.Price }} تومان</p>
+                    {% endif %}
+                    {% if product.SKU %}
+                        <p><b>کد محصول : </b> {{ product.SKU }}</p>
+                    {% endif %}
+                    {% if product.Stock %}
+                        <p><b>موجودی : </b> {{ product.Stock }}</p>
+                    {% endif %}
+                {% else %}
+                    <p><b>سال : </b> 2021</p>
+                    <p><b>کمپانی : </b> طراحی و معماری</p>
+                    <p><b>نام پروژه : </b> آرمادا سنتر</p>
+                    <p><b>آدرس : </b> مشهد</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row mt-30">
+            {% if product and product.images %}
+                {% for image in product.images %}
+                    <div class="col-md-6 gallery-item">
+                        <a href="{{ image.ImageUrl }}" title="{{ image.AltText or product.Title }}" class="img-zoom">
+                            <div class="gallery-box">
+                                <div class="gallery-img"> <img src="{{ image.ImageUrl }}" class="img-fluid mx-auto d-block" alt="{{ image.AltText or product.Title }}"> </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-6 gallery-item">
+                    <a href="{{ url_for('static', filename='img/slider/2.jpg') }}" title="Architecture" class="img-zoom">
+                        <div class="gallery-box">
+                            <div class="gallery-img"> <img src="{{ url_for('static', filename='img/slider/2.jpg') }}" class="img-fluid mx-auto d-block" alt="work-img"> </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 gallery-item">
+                    <a href="{{ url_for('static', filename='img/slider/1.jpg') }}" title="Architecture" class="img-zoom">
+                        <div class="gallery-box">
+                            <div class="gallery-img"> <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="img-fluid mx-auto d-block" alt="work-img"> </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 gallery-item">
+                    <a href="{{ url_for('static', filename='img/slider/3.jpg') }}" title="Architecture" class="img-zoom">
+                        <div class="gallery-box">
+                            <div class="gallery-img"> <img src="{{ url_for('static', filename='img/slider/3.jpg') }}" class="img-fluid mx-auto d-block" alt="work-img"> </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 gallery-item">
+                    <a href="{{ url_for('static', filename='img/slider/4.jpg') }}" title="Architecture" class="img-zoom">
+                        <div class="gallery-box">
+                            <div class="gallery-img"> <img src="{{ url_for('static', filename='img/slider/4.jpg') }}" class="img-fluid mx-auto d-block" alt="work-img"> </div>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<!-- Prev-Next Projects -->
+<section class="projects-prev-next">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-sm-flex align-items-center justify-content-between">
+                    <div class="projects-prev-next-right">
+                        <a href="#">  <i class="ti-arrow-right"></i> پروژه بعدلی</a>
+                    </div>
+                    <a href="{{ url_for('main.index') }}#projects"><i class="ti-layout-grid3-alt"></i></a>
+                    <div class="projects-prev-next-left">
+                        <a href="#">پروژه قبلی <i class="ti-arrow-left"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

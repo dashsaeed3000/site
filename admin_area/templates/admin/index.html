@@ -1,0 +1,289 @@
+{% extends 'admin_base.html' %}
+
+{% block body %}
+<div class="container-fluid" style="direction: rtl; font-family: 'Vazir', sans-serif;">
+    <h1 style="font-family: 'Vazir', sans-serif; margin-bottom: 30px; text-align: right;">داشبورد مدیریت</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-primary" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">کل محصولات</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_products }}</h3>
+                        </div>
+                        <i class="ti-package" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-success" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات فعال</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.active_products }}</h3>
+                        </div>
+                        <i class="ti-check-box" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-info" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">دسته‌بندی‌ها</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_categories }}</h3>
+                        </div>
+                        <i class="ti-folder" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-warning" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">مقالات</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_blogs }}</h3>
+                        </div>
+                        <i class="ti-file" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-secondary" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">نظرات</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_comments }}</h3>
+                            <small style="opacity: 0.8;">{{ stats.pending_comments }} در انتظار تایید</small>
+                        </div>
+                        <i class="ti-comment" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-danger" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات بدون تصویر</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.products_without_images }}</h3>
+                        </div>
+                        <i class="ti-image" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #6c757d; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">موجودی کم</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.low_stock_products }}</h3>
+                        </div>
+                        <i class="ti-alert" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #b19777; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات ویژه</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.featured_products }}</h3>
+                        </div>
+                        <i class="ti-star" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0;">
+                    <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">توزیع محصولات بر اساس دسته‌بندی</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0;">
+                    <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">آمار کلی</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statsChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Products and Comments -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0;">
+                    <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">آخرین محصولات</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.recent_products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" style="direction: rtl; text-align: right;">
+                            <thead>
+                                <tr>
+                                    <th>عنوان</th>
+                                    <th>دسته‌بندی</th>
+                                    <th>تاریخ ایجاد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in stats.recent_products[:5] %}
+                                <tr>
+                                    <td>{{ product.Title }}</td>
+                                    <td>{{ product.category.Title if product.category else '-' }}</td>
+                                    <td>{{ product.CreatedAt|persian_date if product.CreatedAt else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">محصولی یافت نشد</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0;">
+                    <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">آخرین نظرات</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.recent_comments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" style="direction: rtl; text-align: right;">
+                            <thead>
+                                <tr>
+                                    <th>متن نظر</th>
+                                    <th>امتیاز</th>
+                                    <th>تاریخ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comment in stats.recent_comments[:5] %}
+                                <tr>
+                                    <td>{{ comment.Body[:50] }}{% if comment.Body|length > 50 %}...{% endif %}</td>
+                                    <td>
+                                        {% if comment.Rating %}
+                                        {% for i in range(comment.Rating) %}★{% endfor %}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>{{ comment.CreatedAt|persian_date if comment.CreatedAt else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">نظری یافت نشد</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Category Distribution Pie Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ stats.category_labels|tojson }},
+            datasets: [{
+                data: {{ stats.category_counts|tojson }},
+                backgroundColor: [
+                    '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
+                    '#6c757d', '#b19777', '#6610f2', '#e83e8c', '#fd7e14'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'left',
+                    rtl: true
+                }
+            }
+        }
+    });
+    
+    // Statistics Bar Chart
+    const statsCtx = document.getElementById('statsChart').getContext('2d');
+    new Chart(statsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['محصولات فعال', 'مقالات منتشر شده', 'نظرات', 'محصولات ویژه'],
+            datasets: [{
+                label: 'تعداد',
+                data: [
+                    {{ stats.active_products }},
+                    {{ stats.published_blogs }},
+                    {{ stats.total_comments }},
+                    {{ stats.featured_products }}
+                ],
+                backgroundColor: ['#28a745', '#007bff', '#ffc107', '#b19777']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
