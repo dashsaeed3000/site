@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}پرداخت - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="banner-header-title">پرداخت</h1>
+            </div>
+        </div>
+    </div>
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Payment Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <!-- Order Summary -->
+                <div class="order-summary mb-4" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        خلاصه سفارش
+                    </h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong>شماره سفارش:</strong> {{ order.OrderNumber }}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>مبلغ قابل پرداخت:</strong> 
+                        <span style="font-size: 20px; font-weight: bold; color: #b19777;">
+                            {{ "{:,.0f}".format(order.TotalAmount|float) }} تومان
+                        </span>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                        <h4 style="margin-bottom: 15px;">محصولات:</h4>
+                        {% for item in order.items %}
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                            <div>
+                                <div style="font-weight: bold;">{{ item.ProductTitle }}</div>
+                                <div style="font-size: 14px; color: #6c757d;">{{ item.Quantity }} عدد × {{ "{:,.0f}".format(item.UnitPrice|float) }} تومان</div>
+                            </div>
+                            <div style="font-weight: bold;">{{ "{:,.0f}".format(item.TotalPrice|float) }} تومان</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="payment-methods" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        روش پرداخت
+                    </h3>
+                    
+                    <p style="color: #6c757d; margin-bottom: 30px;">
+                        در حال حاضر سیستم پرداخت در حال توسعه است. برای تست، می‌توانید از دکمه پرداخت تست استفاده کنید.
+                    </p>
+                    
+                    <!-- Mock Payment Button -->
+                    <form method="POST" action="{{ url_for('payments.create') }}" id="payment-form">
+                        <input type="hidden" name="order_id" value="{{ order.Id }}">
+                        <input type="hidden" name="amount" value="{{ order.TotalAmount }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <button type="button" 
+                                class="butn-dark" 
+                                onclick="processMockPayment()"
+                                style="width: 100%; padding: 15px; font-size: 18px;">
+                            <span>پرداخت تست (موقت)</span>
+                        </button>
+                    </form>
+                    
+                    <p style="color: #6c757d; font-size: 14px; margin-top: 15px; text-align: center;">
+                        در نسخه تولیدی، اینجا درگاه پرداخت واقعی قرار خواهد گرفت
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function processMockPayment() {
+        // Simulate payment processing
+        const orderId = '{{ order.Id }}';
+        const orderNumber = '{{ order.OrderNumber }}';
+        
+        // Show loading
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerHTML = '<span>در حال پردازش...</span>';
+        
+        // Simulate API call
+        setTimeout(function() {
+            // Redirect to success page
+            window.location.href = '{{ url_for("main.order_success", order_number=order.OrderNumber) }}';
+        }, 2000);
+    }
+</script>
+{% endblock %}
+

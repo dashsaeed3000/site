@@ -11,23 +11,40 @@
     <style>
         /* Search Form Styles */
         .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 15px;
             flex-shrink: 0;
         }
-        .search-toggle-btn, .theme-toggle-btn {
+        .search-toggle-link, .theme-toggle-link {
             color: #fff !important;
-            background: rgba(0, 31, 63, 0.8) !important;
+            background: rgba(0, 31, 63, 0.4) !important;
             border: none !important;
             padding: 8px 12px !important;
             transition: all 0.3s;
-            border-radius: 5px !important;
+            border-radius: 4px !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
         }
-        .search-toggle-btn:hover, .theme-toggle-btn:hover {
+        .search-toggle-link:hover, .theme-toggle-link:hover {
             color: #b19777 !important;
-            background: rgba(0, 31, 63, 0.95) !important;
+            background: rgba(0, 31, 63, 0.6) !important;
+            text-decoration: none !important;
         }
-        .search-toggle-btn:focus, .theme-toggle-btn:focus {
+        .search-toggle-link:focus, .theme-toggle-link:focus {
             outline: none !important;
             box-shadow: 0 0 0 2px rgba(177, 151, 119, 0.5) !important;
+        }
+        .search-toggle-link i {
+            font-size: 18px;
+        }
+        .theme-toggle-link {
+            font-size: 18px;
         }
         #searchCollapse {
             background: rgba(0, 31, 63, 0.98);
@@ -37,26 +54,98 @@
         .search-form {
             direction: rtl;
         }
-        .search-form .form-control {
-            font-family: 'Vazir', sans-serif;
+        .search-input-group {
+            direction: rtl;
+        }
+        .search-input {
+            font-family: 'Vazir', sans-serif !important;
             direction: rtl;
             text-align: right;
+            border: 2px solid #b19777;
+            border-left: none;
+            border-radius: 0 25px 25px 0;
+            padding: 8px 15px;
+            height: 40px;
+            font-size: 14px;
+            background: #fff;
         }
-        .search-form .form-control:focus {
+        .search-input:focus {
             border-color: #b19777;
             box-shadow: 0 0 0 0.2rem rgba(177, 151, 119, 0.25);
+            outline: none;
         }
-        .search-form .btn-primary:hover {
+        .search-btn {
+            background: #b19777 !important;
+            border: 2px solid #b19777 !important;
+            border-right: none !important;
+            border-radius: 25px 0 0 25px !important;
+            padding: 8px 20px !important;
+            height: 40px;
+            color: #fff !important;
+            transition: all 0.3s;
+        }
+        .search-btn:hover {
             background: #001f3f !important;
             border-color: #001f3f !important;
         }
+        .search-btn:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        @media (max-width: 991px) {
+            .navbar-actions {
+                margin-right: 10px !important;
+                gap: 6px !important;
+            }
+            .search-toggle-link, .theme-toggle-link {
+                padding: 6px 10px !important;
+                min-width: 36px;
+                height: 36px;
+            }
+            .search-toggle-link i {
+                font-size: 16px;
+            }
+            .theme-toggle-link {
+                font-size: 16px;
+            }
+        }
         @media (max-width: 768px) {
-            .search-form .input-group {
+            .search-input-group {
                 max-width: 100% !important;
+                margin: 0 10px !important;
             }
             .navbar-actions {
                 margin-right: 5px !important;
-                gap: 5px !important;
+                gap: 4px !important;
+            }
+            .search-toggle-link, .theme-toggle-link {
+                padding: 5px 8px !important;
+                min-width: 32px;
+                height: 32px;
+            }
+            .search-toggle-link i {
+                font-size: 14px;
+            }
+            .theme-toggle-link {
+                font-size: 14px;
+            }
+            .search-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 10px 15px;
+            }
+            .search-btn {
+                padding: 10px 15px !important;
+            }
+        }
+        @media (max-width: 576px) {
+            .navbar-actions {
+                margin-right: 0 !important;
+                gap: 3px !important;
+            }
+            .search-toggle-link, .theme-toggle-link {
+                padding: 4px 6px !important;
+                min-width: 30px;
+                height: 30px;
             }
         }
     </style>
@@ -92,14 +181,21 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#services">سرویس ها</a></li>
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.post' %}active{% endif %}" href="{{ url_for('main.index') }}#blog">وبلاگ</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#contact">تماس با ما</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.cart' %}active{% endif %}" href="{{ url_for('main.cart') }}"><i class="ti-shopping-cart"></i> سبد خرید</a></li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">خروج</a></li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">ورود</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.register') }}">ثبت نام</a></li>
+                {% endif %}
             </ul>
             <!-- Navbar Actions -->
-            <div class="navbar-actions" style="display: flex; align-items: center; gap: 10px; margin-right: 15px;">
-                <!-- Search Toggle Button -->
-                <button class="btn btn-link search-toggle-btn" type="button" data-toggle="collapse" data-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse" style="border: none; padding: 8px 12px; color: #fff; background: rgba(0, 31, 63, 0.8); border-radius: 5px;">
-                    <i class="ti-search" style="font-size: 18px;"></i>
-                </button>
-                <button id="theme-toggle" class="theme-toggle-btn" style="border: none; padding: 8px 12px; color: #fff; background: rgba(0, 31, 63, 0.8); border-radius: 5px; font-size: 18px;">🌙</button>
+            <div class="navbar-actions">
+                <!-- Search Toggle Link -->
+                <a href="#" class="nav-link search-toggle-link" data-toggle="collapse" data-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+                    <i class="ti-search"></i>
+                </a>
+                <a href="#" id="theme-toggle" class="nav-link theme-toggle-link">🌙</a>
             </div>
         </div>
         <!-- Collapsible Search Form -->
@@ -108,21 +204,18 @@
                 <div class="row">
                     <div class="col-md-12">
                         <form method="GET" action="{{ url_for('main.search') }}" class="search-form" style="padding: 10px 0;">
-                            <div class="input-group" style="max-width: 500px; margin: 0 auto; direction: rtl;">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-primary" 
-                                            type="submit"
-                                            style="border-radius: 25px 0 0 25px; background: #b19777; border: 2px solid #b19777; padding: 8px 20px; color: #fff; height: 40px;">
+                            <div class="input-group search-input-group" style="max-width: 500px; margin: 0 auto; direction: rtl;">
+                                <input type="text" 
+                                       name="q" 
+                                       class="form-control search-input" 
+                                       placeholder="جستجوی محصولات..." 
+                                       value="{{ request.args.get('q', '') }}"
+                                       required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary search-btn" type="submit">
                                         <i class="ti-search"></i>
                                     </button>
                                 </div>
-                                <input type="text" 
-                                       name="q" 
-                                       class="form-control" 
-                                       placeholder="جستجوی محصولات..." 
-                                       value="{{ request.args.get('q', '') }}"
-                                       style="border-radius: 0 25px 25px 0; border: 2px solid #b19777; padding: 8px 15px; font-family: 'Vazir', sans-serif; height: 40px; font-size: 14px; direction: rtl; text-align: right;"
-                                       required>
                             </div>
                         </form>
                     </div>

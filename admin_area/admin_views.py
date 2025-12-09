@@ -3,6 +3,7 @@ Admin Area Admin Views
 Custom views for Flask-Admin
 """
 from flask import redirect, url_for, flash
+import logging
 from flask_login import current_user
 from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -31,9 +32,9 @@ class AdminIndexView(AdminIndexView):
     @expose('/')
     def index(self):
         """Render admin dashboard with statistics"""
-        from app.models.models import Products, Categories, Blogs, BlogCategories, ProductComments, ProductImages
+        from app.models.models import Products, Categories, Blogs, BlogCategories, ProductComments, ProductImages, Orders, OrderItems
         from app.repositories.db import get_scoped_session
-        from sqlalchemy import func, and_
+        from sqlalchemy import func, and_, or_
         from datetime import datetime, timedelta
         
         Session = get_scoped_session()
@@ -55,11 +56,28 @@ class AdminIndexView(AdminIndexView):
                 and_(ProductComments.IsDeleted == False, ProductComments.IsApproved == False)
             ).count()
             
+            # Order statistics
+            total_orders = db.query(Orders).filter(Orders.IsDeleted == False).count()
+            pending_orders = db.query(Orders).filter(
+                and_(Orders.IsDeleted == False, Orders.Status == 'pending')
+            ).count()
+            completed_orders = db.query(Orders).filter(
+                and_(Orders.IsDeleted == False, Orders.Status == 'completed')
+            ).count()
+            paid_orders = db.query(Orders).filter(
+                and_(Orders.IsDeleted == False, Orders.PaymentStatus == 'paid')
+            ).count()
+            
+            # Calculate total revenue from paid orders
+            total_revenue = db.query(func.sum(Orders.TotalAmount)).filter(
+                and_(Orders.IsDeleted == False, Orders.PaymentStatus == 'paid')
+            ).scalar() or 0
+            
             # Products without images
             products_without_images = db.query(Products).filter(
                 and_(
                     Products.IsDeleted == False,
-                    (Products.MainImageUrl == None) | (Products.MainImageUrl == '')
+                    or_(Products.MainImageUrl == None, Products.MainImageUrl == '')
                 )
             ).count()
             
@@ -83,7 +101,7 @@ class AdminIndexView(AdminIndexView):
             ).group_by(Categories.Id, Categories.Title).all()
             
             category_labels = [cat[0] or 'بدون دسته‌بندی' for cat in category_stats]
-            category_counts = [cat[1] for cat in category_stats]
+            category_counts = [int(cat[1]) for cat in category_stats]
             
             # Recent products (last 10)
             recent_products = db.query(Products).filter(
@@ -129,11 +147,80 @@ class AdminIndexView(AdminIndexView):
                 'category_counts': category_counts,
                 'recent_products': recent_products,
                 'recent_comments': recent_comments,
+                # Order statistics
+                'total_orders': total_orders,
+                'pending_orders': pending_orders,
+                'completed_orders': completed_orders,
+                'paid_orders': paid_orders,
+                'total_revenue': float(total_revenue),
             }
             
-            return self.render('admin/index.html', stats=stats)
+            # Build a VM-safe dict that contains only JSON-serializable primitives
+            import json
+            try:
+                vm_stats = {
+                    'total_products': total_products,
+                    'active_products': active_products,
+                    'total_categories': total_categories,
+                    'total_blogs': total_blogs,
+                    'published_blogs': published_blogs,
+                    'total_comments': total_comments,
+                    'pending_comments': pending_comments,
+                    'products_without_images': products_without_images,
+                    'low_stock_products': low_stock_products,
+                    'featured_products': featured_products,
+                    'recent_products_count': recent_products_count,
+                    'category_labels': category_labels,
+                    'category_counts': category_counts,
+                    'total_orders': total_orders,
+                    'pending_orders': pending_orders,
+                    'completed_orders': completed_orders,
+                    'paid_orders': paid_orders,
+                    'total_revenue': float(total_revenue),
+                }
+                vm_stats_json = json.dumps(vm_stats, ensure_ascii=False)
+            except Exception:
+                vm_stats_json = '{}'
+            
+            return self.render('admin/index.html', stats=stats, vm_stats_json=vm_stats_json)
+        except Exception as e:
+            # Log the exception and render the dashboard with safe defaults
+            logging.getLogger(__name__).exception('Error building admin dashboard statistics')
+            flash('خطا در بارگذاری آمار داشبورد. لطفاً بعداً دوباره تلاش کنید.', 'error')
+            # Safe defaults so template still renders
+            stats = {
+                'total_products': 0,
+                'active_products': 0,
+                'total_categories': 0,
+                'total_blogs': 0,
+                'published_blogs': 0,
+                'total_comments': 0,
+                'pending_comments': 0,
+                'products_without_images': 0,
+                'low_stock_products': 0,
+                'featured_products': 0,
+                'recent_products_count': 0,
+                'category_labels': [],
+                'category_counts': [],
+                'recent_products': [],
+                'recent_comments': [],
+                'total_orders': 0,
+                'pending_orders': 0,
+                'completed_orders': 0,
+                'paid_orders': 0,
+                'total_revenue': 0.0,
+            }
+            try:
+                vm_stats_json = '{}'
+                return self.render('admin/index.html', stats=stats, vm_stats_json=vm_stats_json)
+            finally:
+                db.close()
         finally:
-            db.close()
+            # Ensure db is closed if it wasn't already
+            try:
+                db.close()
+            except Exception:
+                pass
 
 
 class SecureModelView(ModelView):

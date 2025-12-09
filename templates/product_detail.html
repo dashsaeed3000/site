@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-center">
-                <h1 class="banner-header-title">{% if product %}{{ product.Title }}{% else %}محصول{% endif %}</h1>
+                <h1 class="banner-header-title"> </h1>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
 <section class="section-padding">
     <div class="container">
         {% if product %}
-        <div class="row">
+        <div class="row p-2 ">
             <!-- Product Images -->
             <div class="col-lg-6 col-md-6 mb-30">
                 <div class="product-image-gallery">
@@ -70,7 +70,7 @@
             <div class="col-lg-6 col-md-6 mb-30">
                 <div class="product-info-section">
                     <!-- Product Title -->
-                    <h1 class="product-title mb-3" style="font-family: 'Vazir'; font-size: 32px; font-weight: 400; color: #001f3f; line-height: 1.4;">
+                    <h1 class="product-title mb-3" style="font-family: 'Vazir'; font-size: 32px; font-weight: 400; line-height: 1.4;">
                         {{ product.Title }}
                     </h1>
                     
@@ -93,7 +93,7 @@
                     <!-- Stock Status -->
                     <div class="product-stock mb-4">
                         {% if product.Stock and product.Stock|float > 0 %}
-                            <span class="stock-badge" style="display: inline-block; padding: 8px 16px; background: #d4edda; color: #155724; border-radius: 4px; font-size: 14px;">
+                            <span class="stock-badge" style="display: inline-block; padding: 8px 16px; color: #155724; border-radius: 4px; font-size: 14px;">
                                 <i class="ti-check"></i> موجود در انبار ({{ "{:,.0f}".format(product.Stock|float) }} عدد)
                             </span>
                         {% else %}
@@ -157,7 +157,7 @@
                     <!-- Product Description -->
                     {% if product.Description %}
                     <div class="product-description mt-4">
-                        <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #b19777;">
+                        <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #b19777;">
                             توضیحات محصول
                         </h3>
                         <div style="font-size: 16px; line-height: 1.8; color: #495057;">

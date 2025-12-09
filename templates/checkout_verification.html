@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}تایید شماره تلفن - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="banner-header-title">تایید شماره تلفن</h1>
+            </div>
+        </div>
+    </div>
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Checkout Verification Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 mx-auto">
+                <!-- Progress Indicator -->
+                <div class="checkout-progress mb-4" style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #b19777; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">1</div>
+                            <span style="color: #001f3f; font-weight: bold;">تایید شماره تلفن</span>
+                        </div>
+                        <div style="flex: 1; height: 2px; background: #dee2e6; margin: 0 10px;"></div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dee2e6; color: #6c757d; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">2</div>
+                            <span style="color: #6c757d;">اطلاعات سفارش</span>
+                        </div>
+                        <div style="flex: 1; height: 2px; background: #dee2e6; margin: 0 10px;"></div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dee2e6; color: #6c757d; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">3</div>
+                            <span style="color: #6c757d;">پرداخت</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Verification Form -->
+                <div class="verification-form" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        تایید شماره تلفن
+                    </h3>
+                    <p style="color: #6c757d; margin-bottom: 30px;">
+                        برای ادامه فرآیند خرید، لطفا شماره تلفن خود را وارد کرده و کد تایید ارسال شده را وارد کنید.
+                    </p>
+                    
+                    <form method="POST" id="verification-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Phone Number -->
+                        <div class="form-group mb-3">
+                            {{ form.phone.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.phone(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- OTP Code (shown after phone submission) -->
+                        <div class="form-group mb-3" id="otp-group" style="display: none;">
+                            {{ form.otp.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.otp(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px; text-align: center; letter-spacing: 5px;") }}
+                            {% if form.otp.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.otp.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted" style="margin-top: 5px; display: block;">
+                                کد تایید به شماره تلفن شما ارسال شد. لطفا آن را وارد کنید.
+                            </small>
+                        </div>
+                        
+                        <!-- Send OTP Button -->
+                        <button type="button" 
+                                id="send-otp-btn"
+                                class="butn-dark mb-3"
+                                onclick="sendOTP()"
+                                style="width: 100%; padding: 15px;">
+                            <span>ارسال کد تایید</span>
+                        </button>
+                        
+                        <!-- Submit Button (shown after OTP is sent) -->
+                        {{ form.submit(class="butn-dark", style="width: 100%; padding: 15px; display: none;", id="verify-btn") }}
+                    </form>
+                </div>
+                
+                <!-- Cart Summary -->
+                <div class="cart-summary mt-4" style="padding: 25px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h4 style="font-family: 'Vazir'; font-size: 20px; font-weight: 400; color: #001f3f; margin-bottom: 15px;">
+                        خلاصه سفارش
+                    </h4>
+                    <div style="margin-bottom: 10px;">
+                        <span>تعداد محصولات:</span>
+                        <strong style="float: left;">{{ cart_items|length }} عدد</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span>جمع کل:</span>
+                        <strong style="float: left;">{{ "{:,.0f}".format(cart_total|float) }} تومان</strong>
+                    </div>
+                    <div style="padding-top: 15px; border-top: 1px solid #dee2e6; margin-top: 15px;">
+                        <span style="font-size: 18px; font-weight: bold;">مبلغ قابل پرداخت:</span>
+                        <strong style="float: left; font-size: 20px; color: #b19777;">{{ "{:,.0f}".format((cart_total * 1.09)|float) }} تومان</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'info' }} alert-dismissible fade show mt-3" 
+                     role="alert" 
+                     style="padding: 15px; border-radius: 4px; direction: rtl; text-align: right;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: left;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function sendOTP() {
+        const phone = document.getElementById('phone').value;
+        if (!phone) {
+            alert('لطفا شماره تلفن را وارد کنید');
+            return;
+        }
+        
+        fetch('{{ url_for("main.send_otp") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                phone: phone
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show OTP input
+                document.getElementById('otp-group').style.display = 'block';
+                document.getElementById('send-otp-btn').style.display = 'none';
+                document.getElementById('verify-btn').style.display = 'block';
+                document.getElementById('otp').focus();
+                
+                // Show success message
+                if (data.otp) {
+                    alert('کد تایید (برای تست): ' + data.otp);
+                }
+            } else {
+                alert('خطا: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در ارتباط با سرور');
+        });
+    }
+    
+    // Auto-submit form when OTP is entered (6 digits)
+    document.getElementById('otp').addEventListener('input', function(e) {
+        if (this.value.length === 6) {
+            // Optionally auto-submit
+            // document.getElementById('verification-form').submit();
+        }
+    });
+</script>
+{% endblock %}
+

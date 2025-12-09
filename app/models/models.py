@@ -321,3 +321,83 @@ class SiteContent(Base):
     
     def __str__(self):
         return self.SectionName or self.SectionKey or str(self.Id)
+
+
+class Orders(Base):
+    """Order model for storing customer orders"""
+    __tablename__ = 'Orders'
+    Id = Column(String(36), primary_key=True, default=new_guid_str)
+    
+    # User association (can be null for guest orders, but typically set after account creation)
+    UserId = Column(Integer, ForeignKey('users.id'), nullable=True, index=True)
+    
+    # Order details
+    OrderNumber = Column(String(50), unique=True, nullable=False, index=True)
+    Status = Column(String(20), nullable=False, default='pending')  # pending, processing, completed, cancelled
+    PaymentStatus = Column(String(20), nullable=False, default='pending')  # pending, paid, failed, refunded
+    PaymentMethod = Column(String(50), nullable=True)
+    PaymentTransactionId = Column(String(255), nullable=True)
+    
+    # Customer information (stored even if user account exists for historical accuracy)
+    CustomerName = Column(String(255), nullable=False)
+    CustomerPhone = Column(String(80), nullable=False, index=True)
+    CustomerEmail = Column(String(120), nullable=True)
+    ShippingAddress = Column(Text, nullable=True)
+    
+    # Financial information
+    SubTotal = Column(Numeric(18, 2), nullable=False)
+    TaxAmount = Column(Numeric(18, 2), nullable=False, default=0)
+    ShippingCost = Column(Numeric(18, 2), nullable=False, default=0)
+    TotalAmount = Column(Numeric(18, 2), nullable=False)
+    
+    # Order notes
+    Notes = Column(Text, nullable=True)
+    
+    # Audit + soft delete
+    IsDeleted = Column(Boolean, nullable=False, default=False)
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
+    CreatedBy = Column(String(36), nullable=True)
+    UpdatedAt = Column(DateTime, nullable=True)
+    UpdatedBy = Column(String(36), nullable=True)
+    DeletedAt = Column(DateTime, nullable=True)
+    DeletedBy = Column(String(36), nullable=True)
+    
+    # Relationships
+    items = relationship('OrderItems', backref='order', cascade='all, delete-orphan')
+    
+    def __str__(self):
+        return f"Order {self.OrderNumber}"
+
+
+class OrderItems(Base):
+    """Order items model for storing individual products in an order"""
+    __tablename__ = 'OrderItems'
+    Id = Column(String(36), primary_key=True, default=new_guid_str)
+    
+    OrderId = Column(String(36), ForeignKey('Orders.Id'), nullable=False, index=True)
+    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, index=True)
+    
+    # Product snapshot (stored at time of order for historical accuracy)
+    ProductTitle = Column(String(255), nullable=False)
+    ProductSKU = Column(String(100), nullable=True)
+    ProductPrice = Column(Numeric(18, 2), nullable=False)
+    
+    # Order item details
+    Quantity = Column(Numeric(18, 2), nullable=False)
+    UnitPrice = Column(Numeric(18, 2), nullable=False)
+    TotalPrice = Column(Numeric(18, 2), nullable=False)
+    
+    # Audit + soft delete
+    IsDeleted = Column(Boolean, nullable=False, default=False)
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
+    CreatedBy = Column(String(36), nullable=True)
+    UpdatedAt = Column(DateTime, nullable=True)
+    UpdatedBy = Column(String(36), nullable=True)
+    DeletedAt = Column(DateTime, nullable=True)
+    DeletedBy = Column(String(36), nullable=True)
+    
+    # Relationships
+    product = relationship('Products', backref='order_items')
+    
+    def __str__(self):
+        return f"{self.ProductTitle} x {self.Quantity}"

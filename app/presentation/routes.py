@@ -1,10 +1,17 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, send_from_directory, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, send_from_directory, flash, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
 from pathlib import Path
 from ..config.settings import settings
 from ..repositories.db import get_session
 from ..services.product_service import ProductService
 from ..services.site_content_service import SiteContentService
 from ..services.comment_service import CommentService
+from ..services.cart_service import CartService
+from ..services.order_service import OrderService
+from ..services.phone_verification_service import PhoneVerificationService
+from ..services.user_service import UserService
+from ..presentation.forms import RegistrationForm, LoginForm, PhoneVerificationForm, CheckoutForm
+from admin_area.models import get_user_by_username
 from ..utils.upload import get_upload_folder
 
 main_bp = Blueprint('main', __name__)
@@ -146,9 +153,342 @@ def search():
                          products=products, 
                          query=query)
 
-@main_bp.route('/cart')
+@main_bp.route('/cart', methods=['GET', 'POST'])
 def cart():
-    return render_template('project.html')
+    """Cart page - view and manage cart items"""
+    cart_service = CartService()
+    
+    # Handle POST requests (add to cart from product page)
+    if request.method == 'POST':
+        product_id = request.form.get('product_id')
+        quantity = int(request.form.get('quantity', 1))
+        
+        if product_id:
+            try:
+                cart_service.add_item(product_id, quantity)
+                flash('محصول به سبد خرید اضافه شد', 'success')
+            except Exception as e:
+                flash('خطا در افزودن محصول به سبد خرید', 'error')
+            return redirect(url_for('main.cart'))
+    
+    # Get cart items with product details
+    cart_items = cart_service.get_cart_with_products()
+    cart_total = cart_service.get_cart_total()
+    cart_count = cart_service.get_cart_count()
+    
+    return render_template('cart.html',
+                         cart_items=cart_items,
+                         cart_total=cart_total,
+                         cart_count=cart_count)
+
+
+@main_bp.route('/cart/add', methods=['POST'])
+def cart_add():
+    """API endpoint to add item to cart"""
+    cart_service = CartService()
+    data = request.get_json() or {}
+    
+    product_id = data.get('product_id')
+    quantity = int(data.get('quantity', 1))
+    
+    if not product_id:
+        return jsonify({'success': False, 'message': 'شناسه محصول الزامی است'}), 400
+    
+    try:
+        cart_service.add_item(product_id, quantity)
+        return jsonify({
+            'success': True,
+            'message': 'محصول به سبد خرید اضافه شد',
+            'cart_count': cart_service.get_cart_count()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+
+@main_bp.route('/cart/update', methods=['POST'])
+def cart_update():
+    """API endpoint to update cart item quantity"""
+    cart_service = CartService()
+    data = request.get_json() or {}
+    
+    product_id = data.get('product_id')
+    quantity = int(data.get('quantity', 1))
+    
+    if not product_id:
+        return jsonify({'success': False, 'message': 'شناسه محصول الزامی است'}), 400
+    
+    try:
+        cart_service.update_item_quantity(product_id, quantity)
+        cart_items = cart_service.get_cart_with_products()
+        cart_total = cart_service.get_cart_total()
+        return jsonify({
+            'success': True,
+            'cart_count': cart_service.get_cart_count(),
+            'cart_total': cart_total
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+
+@main_bp.route('/cart/remove/<product_id>', methods=['POST'])
+def cart_remove(product_id):
+    """Remove item from cart"""
+    cart_service = CartService()
+    try:
+        cart_service.remove_item(product_id)
+        flash('محصول از سبد خرید حذف شد', 'success')
+    except Exception as e:
+        flash('خطا در حذف محصول', 'error')
+    return redirect(url_for('main.cart'))
+
+
+@main_bp.route('/cart/clear', methods=['POST'])
+def cart_clear():
+    """Clear all items from cart"""
+    cart_service = CartService()
+    cart_service.clear_cart()
+    flash('سبد خرید خالی شد', 'success')
+    return redirect(url_for('main.cart'))
+
+
+# User Authentication Routes
+@main_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        phone = ''.join(filter(str.isdigit, form.phone.data))
+        
+        # Check if user already exists
+        existing_user = get_user_by_username(phone)
+        if existing_user:
+            flash('این شماره تلفن قبلا ثبت شده است. لطفا وارد شوید.', 'error')
+            return redirect(url_for('main.login'))
+        
+        # Create user
+        with next(get_session()) as db:
+            try:
+                user_service = UserService(db)
+                new_user = user_service.create_user_from_phone(
+                    phone=phone,
+                    email=form.email.data or None,
+                    name=form.name.data
+                )
+                
+                # Set custom password if provided
+                if form.password.data:
+                    if form.password.data != form.password_confirm.data:
+                        flash('رمز عبور و تکرار آن مطابقت ندارند', 'error')
+                        return render_template('register.html', form=form)
+                    new_user.set_password(form.password.data)
+                
+                db.commit()
+                
+                # Auto-login after registration
+                login_user(new_user, remember=True)
+                flash('ثبت نام با موفقیت انجام شد', 'success')
+                return redirect(url_for('main.index'))
+            except Exception as e:
+                db.rollback()
+                flash('خطا در ثبت نام. لطفا دوباره تلاش کنید.', 'error')
+    
+    return render_template('register.html', form=form)
+
+
+@main_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        phone = ''.join(filter(str.isdigit, form.phone.data))
+        user = get_user_by_username(phone)
+        
+        if user and user.check_password(form.password.data):
+            if not user.is_active:
+                flash('حساب کاربری شما غیرفعال است', 'error')
+                return render_template('user_login.html', form=form)
+            
+            login_user(user, remember=form.remember_me.data)
+            next_page = request.args.get('next')
+            if not next_page:
+                next_page = url_for('main.index')
+            flash('ورود موفقیت‌آمیز بود', 'success')
+            return redirect(next_page)
+        else:
+            flash('شماره تلفن یا رمز عبور اشتباه است', 'error')
+    
+    return render_template('user_login.html', form=form)
+
+
+@main_bp.route('/logout')
+@login_required
+def logout():
+    """User logout"""
+    logout_user()
+    flash('خروج موفقیت‌آمیز بود', 'success')
+    return redirect(url_for('main.index'))
+
+
+# Checkout Routes
+@main_bp.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    """Checkout page with phone verification"""
+    cart_service = CartService()
+    
+    # Validate cart
+    is_valid, error_msg = cart_service.validate_cart()
+    if not is_valid:
+        flash(error_msg or 'سبد خرید خالی است', 'error')
+        return redirect(url_for('main.cart'))
+    
+    cart_items = cart_service.get_cart_with_products()
+    cart_total = cart_service.get_cart_total()
+    
+    # Step 1: Phone verification (if not verified)
+    verification_service = PhoneVerificationService()
+    verified_phone = session.get('verified_phone')
+    
+    if not verified_phone:
+        form = PhoneVerificationForm()
+        if form.validate_on_submit():
+            phone = ''.join(filter(str.isdigit, form.phone.data))
+            
+            # Check if OTP is being submitted
+            if form.otp.data:
+                # Verify OTP
+                success, message = verification_service.verify_otp(phone, form.otp.data)
+                if success:
+                    session['verified_phone'] = phone
+                    flash(message, 'success')
+                    return redirect(url_for('main.checkout'))
+                else:
+                    flash(message, 'error')
+            else:
+                # Send OTP
+                result = verification_service.send_otp(phone)
+                if result.get('success'):
+                    flash(result.get('message'), 'success')
+                    # In development, show OTP
+                    if 'otp' in result:
+                        flash(f'کد تایید (برای تست): {result["otp"]}', 'info')
+                else:
+                    flash('خطا در ارسال کد تایید', 'error')
+        
+        return render_template('checkout_verification.html',
+                             form=form,
+                             cart_items=cart_items,
+                             cart_total=cart_total)
+    
+    # Step 2: Checkout form (after phone verification)
+    checkout_form = CheckoutForm()
+    if checkout_form.validate_on_submit():
+        # Create order
+        with next(get_session()) as db:
+            order_service = OrderService(db)
+            user_service = UserService(db)
+            
+            try:
+                # Auto-create user account if doesn't exist
+                user = user_service.get_user_by_phone(verified_phone)
+                user_id = user.id if user else None
+                
+                if not user:
+                    # Create user account automatically
+                    user = user_service.create_user_from_phone(
+                        phone=verified_phone,
+                        email=checkout_form.email.data or None,
+                        name=checkout_form.name.data
+                    )
+                    db.commit()
+                    user_id = user.id
+                    
+                    # Auto-login the newly created user
+                    login_user(user, remember=False)
+                
+                # Create order
+                cart = cart_service.get_cart()
+                order = order_service.create_order_from_cart(
+                    cart_items=cart,
+                    customer_name=checkout_form.name.data,
+                    customer_phone=verified_phone,
+                    customer_email=checkout_form.email.data or None,
+                    shipping_address=checkout_form.shipping_address.data or None,
+                    user_id=user_id,
+                    notes=checkout_form.notes.data or None
+                )
+                
+                db.commit()
+                
+                # Store order ID in session for payment
+                session['pending_order_id'] = order.Id
+                session['pending_order_number'] = order.OrderNumber
+                
+                # Clear verification and cart
+                verification_service.clear_verification()
+                session.pop('verified_phone', None)
+                
+                # Redirect to payment
+                return redirect(url_for('main.payment', order_id=order.Id))
+                
+            except Exception as e:
+                db.rollback()
+                flash(f'خطا در ایجاد سفارش: {str(e)}', 'error')
+    
+    return render_template('checkout.html',
+                         form=checkout_form,
+                         cart_items=cart_items,
+                         cart_total=cart_total,
+                         verified_phone=verified_phone)
+
+
+@main_bp.route('/checkout/send-otp', methods=['POST'])
+def send_otp():
+    """API endpoint to send OTP"""
+    verification_service = PhoneVerificationService()
+    data = request.get_json() or {}
+    phone = data.get('phone', '')
+    
+    if not phone:
+        return jsonify({'success': False, 'message': 'شماره تلفن الزامی است'}), 400
+    
+    result = verification_service.send_otp(phone)
+    return jsonify(result)
+
+
+@main_bp.route('/payment/<order_id>', methods=['GET', 'POST'])
+def payment(order_id):
+    """Payment page"""
+    with next(get_session()) as db:
+        order_service = OrderService(db)
+        order = order_service.get_order(order_id)
+        
+        if not order:
+            flash('سفارش یافت نشد', 'error')
+            return redirect(url_for('main.index'))
+        
+        # In a real implementation, integrate with payment gateway
+        # For now, show order summary and mock payment button
+        return render_template('payment.html', order=order)
+
+
+@main_bp.route('/order/success/<order_number>')
+def order_success(order_number):
+    """Order success page"""
+    with next(get_session()) as db:
+        order_service = OrderService(db)
+        order = order_service.get_order_by_number(order_number)
+        
+        if not order:
+            flash('سفارش یافت نشد', 'error')
+            return redirect(url_for('main.index'))
+        
+        return render_template('order_success.html', order=order)
 
 @main_bp.route('/static/uploads/<path:filename>')
 def uploaded_file(filename):

@@ -21,9 +21,11 @@ def create_app():
     from .presentation.routes import main_bp
     from .presentation.api import api_bp
     from .presentation.admin import admin_bp
+    from .presentation.payments import payments_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(payments_bp, url_prefix='/api/payments')
     # Legacy products admin (kept but moved away from /admin to avoid conflict with Flask-Admin)
     app.register_blueprint(admin_bp, url_prefix='/dashboard/products')
 

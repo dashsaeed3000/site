@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}سفارش موفق - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="banner-header-title">سفارش با موفقیت ثبت شد</h1>
+            </div>
+        </div>
+    </div>
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Order Success Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <!-- Success Message -->
+                <div class="success-message text-center mb-4" style="padding: 40px; background: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
+                    <i class="ti-check" style="font-size: 60px; color: #155724; margin-bottom: 20px;"></i>
+                    <h2 style="color: #155724; margin-bottom: 15px;">سفارش شما با موفقیت ثبت شد!</h2>
+                    <p style="color: #155724; font-size: 18px;">
+                        شماره سفارش: <strong>{{ order.OrderNumber }}</strong>
+                    </p>
+                </div>
+                
+                <!-- Order Details -->
+                <div class="order-details mb-4" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        جزئیات سفارش
+                    </h3>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>شماره سفارش:</strong> {{ order.OrderNumber }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>تاریخ سفارش:</strong> {{ order.CreatedAt|persian_date }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>وضعیت:</strong> 
+                            <span style="color: {% if order.Status == 'completed' %}#28a745{% elif order.Status == 'processing' %}#007bff{% else %}#ffc107{% endif %};">
+                                {% if order.Status == 'pending' %}در انتظار{% elif order.Status == 'processing' %}در حال پردازش{% elif order.Status == 'completed' %}تکمیل شده{% else %}{{ order.Status }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>وضعیت پرداخت:</strong> 
+                            <span style="color: {% if order.PaymentStatus == 'paid' %}#28a745{% else %}#dc3545{% endif %};">
+                                {% if order.PaymentStatus == 'paid' %}پرداخت شده{% elif order.PaymentStatus == 'pending' %}در انتظار پرداخت{% else %}{{ order.PaymentStatus }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <strong>نام مشتری:</strong> {{ order.CustomerName }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <strong>شماره تلفن:</strong> {{ order.CustomerPhone }}
+                        </div>
+                    </div>
+                    
+                    {% if order.CustomerEmail %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <strong>ایمیل:</strong> {{ order.CustomerEmail }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.ShippingAddress %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <strong>آدرس ارسال:</strong> {{ order.ShippingAddress }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Order Items -->
+                <div class="order-items mb-4" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h4 style="font-family: 'Vazir'; font-size: 20px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        محصولات سفارش
+                    </h4>
+                    
+                    <div class="table-responsive">
+                        <table class="table" style="margin: 0;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #dee2e6;">
+                                    <th style="padding: 12px; text-align: right;">محصول</th>
+                                    <th style="padding: 12px; text-align: center;">تعداد</th>
+                                    <th style="padding: 12px; text-align: center;">قیمت واحد</th>
+                                    <th style="padding: 12px; text-align: left;">جمع</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items %}
+                                <tr style="border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 12px;">
+                                        <strong>{{ item.ProductTitle }}</strong>
+                                        {% if item.ProductSKU %}
+                                        <br><small style="color: #6c757d;">کد: {{ item.ProductSKU }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 12px; text-align: center;">{{ item.Quantity }}</td>
+                                    <td style="padding: 12px; text-align: center;">{{ "{:,.0f}".format(item.UnitPrice|float) }} تومان</td>
+                                    <td style="padding: 12px; text-align: left; font-weight: bold;">{{ "{:,.0f}".format(item.TotalPrice|float) }} تومان</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr style="border-top: 2px solid #dee2e6;">
+                                    <td colspan="3" style="padding: 12px; text-align: left; font-weight: bold;">جمع کل:</td>
+                                    <td style="padding: 12px; text-align: left; font-weight: bold;">{{ "{:,.0f}".format(order.SubTotal|float) }} تومان</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 12px; text-align: left;">مالیات (9%):</td>
+                                    <td style="padding: 12px; text-align: left;">{{ "{:,.0f}".format(order.TaxAmount|float) }} تومان</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 12px; text-align: left;">هزینه ارسال:</td>
+                                    <td style="padding: 12px; text-align: left;">{{ "{:,.0f}".format(order.ShippingCost|float) }} تومان</td>
+                                </tr>
+                                <tr style="background: #f8f9fa;">
+                                    <td colspan="3" style="padding: 15px; text-align: left; font-size: 18px; font-weight: bold;">مبلغ قابل پرداخت:</td>
+                                    <td style="padding: 15px; text-align: left; font-size: 20px; font-weight: bold; color: #b19777;">{{ "{:,.0f}".format(order.TotalAmount|float) }} تومان</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="text-center">
+                    <a href="{{ url_for('main.index') }}" class="butn-dark" style="display: inline-block; padding: 15px 40px; margin: 10px;">
+                        <span>بازگشت به صفحه اصلی</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.index') }}" class="butn-dark" style="display: inline-block; padding: 15px 40px; margin: 10px; background: #6c757d;">
+                        <span>مشاهده سفارشات من</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

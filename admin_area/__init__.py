@@ -2,7 +2,7 @@
 Admin Area Module
 Handles authentication and admin panel using Flask-Login and Flask-Admin
 """
-from flask import Flask
+from flask import Flask, redirect
 from flask_login import LoginManager
 from flask_admin import Admin
 
@@ -77,6 +77,13 @@ def init_admin_area(app: Flask):
 
     # Register blueprint
     app.register_blueprint(admin_area_bp, url_prefix='/admin')
+
+    # Ensure requests to `/admin` (no trailing slash) redirect to the admin index `/admin/`.
+    # This avoids cases where the server doesn't automatically add a trailing slash
+    # and the Flask-Admin index view is not reached.
+    @app.route('/admin')
+    def _admin_root_redirect():
+        return redirect('/admin/')
 
     return app
 

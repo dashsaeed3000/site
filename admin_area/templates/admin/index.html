@@ -12,7 +12,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">کل محصولات</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_products }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-total-products">0</span></h3>
                         </div>
                         <i class="ti-package" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -26,7 +26,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات فعال</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.active_products }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-active-products">0</span></h3>
                         </div>
                         <i class="ti-check-box" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -40,7 +40,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">دسته‌بندی‌ها</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_categories }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-total-categories">0</span></h3>
                         </div>
                         <i class="ti-folder" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -54,7 +54,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">مقالات</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_blogs }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-total-blogs">0</span></h3>
                         </div>
                         <i class="ti-file" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -71,8 +71,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">نظرات</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.total_comments }}</h3>
-                            <small style="opacity: 0.8;">{{ stats.pending_comments }} در انتظار تایید</small>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-total-comments">0</span></h3>
+                            <small style="opacity: 0.8;"><span id="vm-pending-comments">0</span> در انتظار تایید</small>
                         </div>
                         <i class="ti-comment" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -86,7 +86,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات بدون تصویر</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.products_without_images }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-products-without-images">0</span></h3>
                         </div>
                         <i class="ti-image" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -100,7 +100,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">موجودی کم</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.low_stock_products }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-low-stock-products">0</span></h3>
                         </div>
                         <i class="ti-alert" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
@@ -114,9 +114,68 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">محصولات ویژه</h6>
-                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;">{{ stats.featured_products }}</h3>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-featured-products">0</span></h3>
                         </div>
                         <i class="ti-star" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #17a2b8; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">کل سفارشات</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-total-orders">0</span></h3>
+                        </div>
+                        <i class="ti-shopping-cart" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #ffc107; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">سفارشات در انتظار</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-pending-orders">0</span></h3>
+                        </div>
+                        <i class="ti-time" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #28a745; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">سفارشات تکمیل شده</h6>
+                            <h3 class="mb-0" style="font-size: 32px; font-weight: bold;"><span id="vm-completed-orders">0</span></h3>
+                        </div>
+                        <i class="ti-check" style="font-size: 48px; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white" style="background: #6610f2; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1" style="font-size: 14px; opacity: 0.9;">درآمد کل</h6>
+                            <h3 class="mb-0" style="font-size: 28px; font-weight: bold;"><span id="vm-total-revenue">0</span> تومان</h3>
+                        </div>
+                        <i class="ti-money" style="font-size: 48px; opacity: 0.3;"></i>
                     </div>
                 </div>
             </div>
@@ -131,7 +190,7 @@
                     <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">توزیع محصولات بر اساس دسته‌بندی</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+                    <canvas id="categoryChart" style="width:100%; height:300px; display:block;"></canvas>
                 </div>
             </div>
         </div>
@@ -142,7 +201,7 @@
                     <h5 class="mb-0" style="font-family: 'Vazir', sans-serif; text-align: right;">آمار کلی</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="statsChart" style="max-height: 300px;"></canvas>
+                    <canvas id="statsChart" style="width:100%; height:300px; display:block;"></canvas>
                 </div>
             </div>
         </div>
@@ -224,66 +283,237 @@
     </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    // Category Distribution Pie Chart
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    new Chart(categoryCtx, {
-        type: 'pie',
-        data: {
-            labels: {{ stats.category_labels|tojson }},
-            datasets: [{
-                data: {{ stats.category_counts|tojson }},
-                backgroundColor: [
-                    '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
-                    '#6c757d', '#b19777', '#6610f2', '#e83e8c', '#fd7e14'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'left',
-                    rtl: true
-                }
-            }
+    function drawPieChart(canvas, labels, data) {
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.getBoundingClientRect();
+        const width = canvas.width = Math.max(Math.round(rect.width), 300);
+        const height = canvas.height = Math.max(Math.round(rect.height), 150);
+        const radius = Math.min(width, height) / 2 - 10;
+        const cx = width / 2;
+        const cy = height / 2;
+        const total = data.reduce((a, b) => a + b, 0) || 1;
+        const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d', '#b19777', '#6610f2', '#e83e8c', '#fd7e14'];
+
+        let start = -Math.PI / 2;
+        for (let i = 0; i < data.length; i++) {
+            const value = data[i];
+            const angle = (value / total) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, radius, start, start + angle);
+            ctx.closePath();
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fill();
+            start += angle;
         }
-    });
-    
-    // Statistics Bar Chart
-    const statsCtx = document.getElementById('statsChart').getContext('2d');
-    new Chart(statsCtx, {
-        type: 'bar',
-        data: {
-            labels: ['محصولات فعال', 'مقالات منتشر شده', 'نظرات', 'محصولات ویژه'],
-            datasets: [{
-                label: 'تعداد',
-                data: [
-                    {{ stats.active_products }},
-                    {{ stats.published_blogs }},
-                    {{ stats.total_comments }},
-                    {{ stats.featured_products }}
-                ],
-                backgroundColor: ['#28a745', '#007bff', '#ffc107', '#b19777']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+
+        // Simple legend (right side)
+        const legendX = Math.max(width - 150, cx + radius + 10);
+        let legendY = 20;
+        ctx.font = '12px Vazir';
+        ctx.textAlign = 'right';
+        for (let i = 0; i < labels.length && i < data.length; i++) {
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fillRect(legendX - 15, legendY - 10, 12, 12);
+            ctx.fillStyle = '#333';
+            ctx.fillText(labels[i], legendX - 20, legendY);
+            legendY += 18;
+        }
+    }
+
+    function drawBarChart(canvas, labels, values) {
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.getBoundingClientRect();
+        const width = canvas.width = Math.max(Math.round(rect.width), 300);
+        const height = canvas.height = Math.max(Math.round(rect.height), 150);
+        const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+        const chartW = width - margin.left - margin.right;
+        const chartH = height - margin.top - margin.bottom;
+        const maxVal = Math.max(...values, 1);
+        const barW = chartW / values.length * 0.6;
+        const gap = chartW / values.length * 0.4;
+        const colors = ['#28a745', '#007bff', '#ffc107', '#b19777'];
+
+        // Reset any transforms and clear
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+        ctx.translate(margin.left, margin.top);
+
+        // Axes
+        ctx.strokeStyle = '#ccc';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, chartH);
+        ctx.lineTo(chartW, chartH);
+        ctx.stroke();
+
+        // Bars
+        for (let i = 0; i < values.length; i++) {
+            const x = i * (barW + gap) + gap / 2;
+            const h = (values[i] / maxVal) * (chartH - 10);
+            const y = chartH - h;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fillRect(x, y, barW, h);
+        }
+
+        // Labels
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Vazir';
+        ctx.textAlign = 'center';
+        for (let i = 0; i < labels.length; i++) {
+            const x = i * (barW + gap) + gap / 2 + barW / 2;
+            ctx.save();
+            ctx.translate(x, chartH + 18);
+            ctx.rotate(-Math.PI / 12);
+            ctx.fillText(labels[i], 0, 0);
+            ctx.restore();
+        }
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        const categoryCanvas = document.getElementById('categoryChart');
+        const statsCanvas = document.getElementById('statsChart');
+
+        // Use server-rendered JSON-safe VM data passed from the view as `vm_stats_json`.
+        // `vm_stats_json` is a JSON string created in the view and is safe to insert directly.
+        let VM_STATS = {};
+        try {
+            VM_STATS = JSON.parse({{ (vm_stats_json if vm_stats_json is defined else '"{}"')|safe }});
+        } catch (e) {
+            console.error('Failed to parse VM_STATS:', e);
+            VM_STATS = {};
+        }
+
+        const categoryLabels = Array.isArray(VM_STATS.category_labels) ? VM_STATS.category_labels : [];
+        const categoryCounts = Array.isArray(VM_STATS.category_counts) ? VM_STATS.category_counts : [];
+
+        const summaryLabels = ['محصولات فعال', 'مقالات منتشر شده', 'نظرات', 'سفارشات'];
+        const summaryValues = [
+            VM_STATS.active_products || 0,
+            VM_STATS.published_blogs || 0,
+            VM_STATS.total_comments || 0,
+            VM_STATS.total_orders || 0,
+        ];
+
+        function AdminViewModel(data) {
+            this.data = data || {};
+            this.bindings = {
+                total_products: 'vm-total-products',
+                active_products: 'vm-active-products',
+                total_categories: 'vm-total-categories',
+                total_blogs: 'vm-total-blogs',
+                total_comments: 'vm-total-comments',
+                pending_comments: 'vm-pending-comments',
+                products_without_images: 'vm-products-without-images',
+                low_stock_products: 'vm-low-stock-products',
+                featured_products: 'vm-featured-products',
+                total_orders: 'vm-total-orders',
+                pending_orders: 'vm-pending-orders',
+                completed_orders: 'vm-completed-orders',
+                total_revenue: 'vm-total-revenue'
+            };
+        }
+
+        AdminViewModel.prototype.formatNumber = function(n) {
+            if (n === null || n === undefined) return '0';
+            try {
+                if (typeof n === 'number' && n >= 1000) {
+                    return n.toLocaleString('fa-IR');
                 }
-            },
-            plugins: {
-                legend: {
-                    display: false
+                return n.toString();
+            } catch (e) { return String(n); }
+        };
+        
+        AdminViewModel.prototype.formatCurrency = function(n) {
+            if (n === null || n === undefined) return '0';
+            try {
+                const num = typeof n === 'number' ? n : parseFloat(n);
+                return num.toLocaleString('fa-IR');
+            } catch (e) { return String(n); }
+        };
+
+        AdminViewModel.prototype.applyBindings = function() {
+            for (const key in this.bindings) {
+                const el = document.getElementById(this.bindings[key]);
+                if (!el) continue;
+                const val = this.data[key] !== undefined ? this.data[key] : 0;
+                if (key === 'total_revenue') {
+                    el.textContent = this.formatCurrency(val);
+                } else {
+                    el.textContent = this.formatNumber(val);
                 }
             }
+        };
+
+        AdminViewModel.prototype.renderCharts = function() {
+            // category labels/counts
+            const catLabels = Array.isArray(this.data.category_labels) ? this.data.category_labels : categoryLabels || [];
+            const catCounts = Array.isArray(this.data.category_counts) ? this.data.category_counts : categoryCounts || [];
+
+            // summary values fallback to server-provided summaryValues
+            const sumVals = [
+                this.data.active_products || summaryValues[0] || 0,
+                this.data.published_blogs || summaryValues[1] || 0,
+                this.data.total_comments || summaryValues[2] || 0,
+                this.data.featured_products || summaryValues[3] || 0,
+            ];
+
+            if (categoryCanvas && catCounts.length > 0) {
+                drawPieChart(categoryCanvas, catLabels, catCounts);
+            }
+
+            if (statsCanvas) {
+                drawBarChart(statsCanvas, summaryLabels, sumVals);
+            }
+        };
+
+        AdminViewModel.prototype.init = function() {
+            this.applyBindings();
+            this.renderCharts();
+        };
+
+        // Debug: show raw stats object (hidden by default via CSS)
+        const debugPre = document.getElementById('stats-debug');
+        if (debugPre) {
+            try { debugPre.textContent = JSON.stringify(VM_STATS, null, 2); } catch (e) {}
+        }
+
+        // Start VM
+        try {
+            const vm = new AdminViewModel(VM_STATS);
+            vm.init();
+        } catch (e) {
+            console.error('AdminViewModel init error', e);
+        }
+
+        // Draw category pie chart if we have data
+        if (categoryCanvas && Array.isArray(categoryLabels) && Array.isArray(categoryCounts) && categoryCounts.length > 0) {
+            drawPieChart(categoryCanvas, categoryLabels, categoryCounts);
+        } else if (categoryCanvas) {
+            const ctx = categoryCanvas.getContext('2d');
+            ctx.font = '16px Vazir';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            const rect = categoryCanvas.getBoundingClientRect();
+            ctx.fillText('داده‌ای برای نمایش وجود ندارد', (rect.width/2) || 150, (rect.height/2) || 80);
+        }
+
+        // Draw summary bar chart if we have data
+        if (statsCanvas && Array.isArray(summaryLabels) && Array.isArray(summaryValues) && summaryValues.length > 0) {
+            drawBarChart(statsCanvas, summaryLabels, summaryValues);
+        } else if (statsCanvas) {
+            const ctx = statsCanvas.getContext('2d');
+            ctx.font = '16px Vazir';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            const rect = statsCanvas.getBoundingClientRect();
+            ctx.fillText('داده‌ای برای نمایش وجود ندارد', (rect.width/2) || 150, (rect.height/2) || 80);
         }
     });
 </script>
+<!-- Debug output of server stats (helpful while troubleshooting). Remove or hide in production. -->
+<pre id="stats-debug" style="direction:ltr; white-space:pre-wrap; background:#f8f9fa; border:1px solid #eee; padding:8px; font-size:12px; display:none;"></pre>
 {% endblock %}

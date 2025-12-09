@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}تکمیل سفارش - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="banner-header-title">تکمیل سفارش</h1>
+            </div>
+        </div>
+    </div>
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Checkout Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <!-- Progress Indicator -->
+                <div class="checkout-progress mb-4" style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #b19777; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">✓</div>
+                            <span style="color: #001f3f; font-weight: bold;">تایید شماره تلفن</span>
+                        </div>
+                        <div style="flex: 1; height: 2px; background: #b19777; margin: 0 10px;"></div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #b19777; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">2</div>
+                            <span style="color: #001f3f; font-weight: bold;">اطلاعات سفارش</span>
+                        </div>
+                        <div style="flex: 1; height: 2px; background: #dee2e6; margin: 0 10px;"></div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dee2e6; color: #6c757d; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;">3</div>
+                            <span style="color: #6c757d;">پرداخت</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Checkout Form -->
+                <div class="checkout-form" style="padding: 30px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        اطلاعات سفارش
+                    </h3>
+                    <p style="color: #6c757d; margin-bottom: 10px;">
+                        شماره تلفن تایید شده: <strong>{{ verified_phone }}</strong>
+                    </p>
+                    
+                    <form method="POST">
+                        {{ checkout_form.hidden_tag() }}
+                        
+                        <!-- Name -->
+                        <div class="form-group mb-3">
+                            {{ checkout_form.name.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ checkout_form.name(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if checkout_form.name.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in checkout_form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="form-group mb-3">
+                            {{ checkout_form.email.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ checkout_form.email(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if checkout_form.email.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in checkout_form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Shipping Address -->
+                        <div class="form-group mb-3">
+                            {{ checkout_form.shipping_address.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ checkout_form.shipping_address(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if checkout_form.shipping_address.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in checkout_form.shipping_address.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="form-group mb-4">
+                            {{ checkout_form.notes.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ checkout_form.notes(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if checkout_form.notes.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in checkout_form.notes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {{ checkout_form.submit(class="butn-dark", style="width: 100%; padding: 15px;") }}
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="col-lg-4 col-md-12">
+                <div class="order-summary" style="padding: 25px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6; position: sticky; top: 20px;">
+                    <h4 style="font-family: 'Vazir'; font-size: 20px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                        خلاصه سفارش
+                    </h4>
+                    
+                    <!-- Cart Items -->
+                    <div class="order-items mb-3" style="max-height: 300px; overflow-y: auto;">
+                        {% for item in cart_items %}
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #dee2e6;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">{{ item.product.Title }}</div>
+                                <div style="font-size: 14px; color: #6c757d;">{{ item.quantity }} عدد × {{ "{:,.0f}".format(item.product.Price|float) }} تومان</div>
+                            </div>
+                            <div style="font-weight: bold; color: #001f3f;">{{ "{:,.0f}".format(item.subtotal|float) }} تومان</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Totals -->
+                    <div style="padding-top: 15px; border-top: 2px solid #dee2e6; margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>جمع کل:</span>
+                            <span>{{ "{:,.0f}".format(cart_total|float) }} تومان</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>مالیات (9%):</span>
+                            <span>{{ "{:,.0f}".format((cart_total * 0.09)|float) }} تومان</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 1px solid #dee2e6; margin-top: 15px;">
+                            <span style="font-size: 18px; font-weight: bold; color: #001f3f;">مبلغ قابل پرداخت:</span>
+                            <span style="font-size: 20px; font-weight: bold; color: #b19777;">{{ "{:,.0f}".format((cart_total * 1.09)|float) }} تومان</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mt-3" 
+                     role="alert" 
+                     style="padding: 15px; border-radius: 4px; direction: rtl; text-align: right;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: left;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</section>
+{% endblock %}
+

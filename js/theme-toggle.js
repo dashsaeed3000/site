@@ -2,7 +2,7 @@
 (function() {
   // Wait for DOM to be ready
   function initThemeToggle() {
-    const toggleButton = document.getElementById('theme-toggle');
+    const toggleButton = document.getElementById('theme-toggle') || document.querySelector('.theme-toggle-link');
     if (!toggleButton) {
       // Retry after a short delay if button not found
       setTimeout(initThemeToggle, 100);

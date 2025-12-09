@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}ثبت نام - قالب سایت{% endblock %}
+
+{% block header %}
+<!-- Header Banner -->
+<section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{{ url_for('static', filename='img/banner.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 class="banner-header-title">ثبت نام</h1>
+            </div>
+        </div>
+    </div>
+    <!-- Left Panel -->
+    <div class="left-panel"></div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Registration Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="register-form" style="padding: 40px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h2 style="font-family: 'Vazir'; font-size: 28px; font-weight: 400; color: #001f3f; margin-bottom: 30px; text-align: center;">
+                        ایجاد حساب کاربری
+                    </h2>
+                    <p style="color: #6c757d; margin-bottom: 30px; text-align: center;">
+                        لطفا اطلاعات خود را وارد کنید. شماره تلفن شما به عنوان نام کاربری استفاده خواهد شد.
+                    </p>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Phone -->
+                        <div class="form-group mb-3">
+                            {{ form.phone.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.phone(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted" style="margin-top: 5px; display: block;">
+                                شماره تلفن شما به عنوان نام کاربری استفاده خواهد شد
+                            </small>
+                        </div>
+                        
+                        <!-- Name -->
+                        <div class="form-group mb-3">
+                            {{ form.name.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.name(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="form-group mb-3">
+                            {{ form.email.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.email(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="form-group mb-3">
+                            {{ form.password.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.password(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.password.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted" style="margin-top: 5px; display: block;">
+                                رمز عبور باید حداقل 6 کاراکتر باشد
+                            </small>
+                        </div>
+                        
+                        <!-- Password Confirm -->
+                        <div class="form-group mb-4">
+                            {{ form.password_confirm.label(class="form-label", style="font-weight: bold; color: #495057; margin-bottom: 10px; display: block;") }}
+                            {{ form.password_confirm(class="form-control", style="padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 16px;") }}
+                            {% if form.password_confirm.errors %}
+                                <div class="text-danger" style="margin-top: 5px; font-size: 14px;">
+                                    {% for error in form.password_confirm.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        {{ form.submit(class="butn-dark", style="width: 100%; padding: 15px; margin-bottom: 20px;") }}
+                        
+                        <!-- Login Link -->
+                        <div style="text-align: center; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                            <p style="color: #6c757d; margin-bottom: 10px;">قبلا ثبت نام کرده‌اید؟</p>
+                            <a href="{{ url_for('main.login') }}" class="butn-dark" style="display: inline-block; padding: 12px 30px; background: #6c757d;">
+                                <span>ورود</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mt-3" 
+                     role="alert" 
+                     style="padding: 15px; border-radius: 4px; direction: rtl; text-align: right; max-width: 800px; margin: 20px auto;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: left;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</section>
+{% endblock %}
+
