@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ parent.title }} - دسته‌بندی{% endblock %}
+
+{% block content %}
+<section style="margin-top: 250px; padding: 40px 0; direction: rtl;">
+    <div class="container">
+        <!-- Category Header -->
+        <div class="row mb-40">
+            <div class="col-md-12">
+                <div style="text-align: right;">
+                    <h1 style="font-family: 'Vazir'; font-size: 32px; font-weight: 400; color: #001f3f; margin-bottom: 15px;">{{ parent.title }}</h1>
+                    {% if parent.description %}
+                        <p style="color: #6c757d; font-size: 16px; line-height: 1.6;">{{ parent.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Subcategories Grid -->
+        {% if children and children|length > 0 %}
+            <div class="row">
+                {% for c in children %}
+                <div class="col-md-4 mb-30">
+                    <div class="item">
+                        <a href="{{ url_for('main.category', slug=c.slug) }}" style="text-decoration: none;">
+                            <img src="{{ url_for('static', filename='img/icons/icon-1.png') }}" alt="{{ c.title }}" style="width: 100%; height: auto;">
+                            <h5 style="margin-top: 15px; color: #001f3f; font-weight: bold;">{{ c.title }}</h5>
+                            <div class="line" style="width: 50px; height: 2px; background: #b19777; margin: 10px 0;"></div>
+                            <p style="color: #6c757d; line-height: 1.6;">{{ c.description or 'توضیح اضافی' }}</p>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+                        <p style="color: #6c757d; font-size: 16px;">هیچ زیر دسته‌ای برای این بخش وجود ندارد.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -480,7 +480,7 @@ html.theme-bright #theme-toggle:hover {
     -webkit-transition: all .3s ease;
     transition: all .3s ease;
     border-radius: 4px;
-    background: rgba(0, 31, 63, 0.25);
+    background: rgba(1, 0, 43, 0);
     overflow: hidden;
     border: none !important;
 }

@@ -160,52 +160,46 @@
             </div>
         </div>
         <div class="row">
-            {% if services %}
-                {% for service in services %}
+            {% if parent_categories and parent_categories|length > 0 %}
+                {% for cat in parent_categories %}
                 <div class="col-md-4">
                     <div class="item">
-                        <a href="{{ url_for('main.index') }}#services"> 
-                            <img src="{% if service.image %}{{ service.image }}{% else %}{{ url_for('static', filename='img/icons/icon-1.png') }}{% endif %}" alt="">
-                            <h5>{% if service.title %}{{ service.title }}{% else %}خدمات{% endif %}</h5>
+                        <a href="{{ url_for('main.category', slug=cat.slug) }}"> 
+                            <img src="{{ url_for('static', filename='img/icons/icon-1.png') }}" alt="">
+                            <h5>{{ cat.title }}</h5>
                             <div class="line"></div>
-                            <p>{% if service.content %}{{ service.content }}{% else %}لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است{% endif %}</p>
-                            <div class="numb">{% if service.number %}{{ service.number }}{% else %}{% if loop.index < 10 %}0{{ loop.index }}{% else %}{{ loop.index }}{% endif %}{% endif %}</div>
+                            <p>{{ cat.description or '' }}</p>
                         </a>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <!-- Default services if no content in database -->
-                <div class="col-md-4">
-                    <div class="item">
-                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-1.png') }}" alt="">
-                            <h5>معماری</h5>
-                            <div class="line"></div>
-                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
-                            <div class="numb">01</div>
-                        </a>
+                <!-- Fallback to legacy services content -->
+                {% if services %}
+                    {% for service in services %}
+                    <div class="col-md-4">
+                        <div class="item">
+                            <a href="{{ url_for('main.index') }}#services"> 
+                                <img src="{% if service.image %}{{ service.image }}{% else %}{{ url_for('static', filename='img/icons/icon-1.png') }}{% endif %}" alt="">
+                                <h5>{% if service.title %}{{ service.title }}{% else %}خدمات{% endif %}</h5>
+                                <div class="line"></div>
+                                <p>{% if service.content %}{{ service.content }}{% else %}لورم ایپسوم متن ساختگی...{% endif %}</p>
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="item">
-                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-2.png') }}" alt="">
-                            <h5>طراحی داخلی</h5>
-                            <div class="line"></div>
-                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
-                            <div class="numb">02</div>
-                        </a>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default static items -->
+                    <div class="col-md-4">
+                        <div class="item">
+                            <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-1.png') }}" alt="">
+                                <h5>معماری</h5>
+                                <div class="line"></div>
+                                <p>لورم ایپسوم متن ساختگی ...</p>
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="item">
-                        <a href="{{ url_for('main.index') }}#services"> <img src="{{ url_for('static', filename='img/icons/icon-3.png') }}" alt="">
-                            <h5>طراحی شهری</h5>
-                            <div class="line"></div>
-                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است </p>
-                            <div class="numb">03</div>
-                        </a>
-                    </div>
-                </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>

@@ -4,6 +4,7 @@ from pathlib import Path
 from ..config.settings import settings
 from ..repositories.db import get_session
 from ..services.product_service import ProductService
+from ..models.models import Categories
 from ..services.site_content_service import SiteContentService
 from ..services.comment_service import CommentService
 from ..services.cart_service import CartService
@@ -57,7 +58,7 @@ def index():
                 'image': item.ImageUrl,
             })
         
-        # Get service items
+        # Get service items (legacy site content)
         service_items = content_svc.get_content_list('service_')
         for item in service_items:
             services.append({
@@ -66,6 +67,24 @@ def index():
                 'image': item.ImageUrl,
                 'number': item.Field1,  # Service number
             })
+
+        # Load parent categories to display in Services section (parent categories only)
+        parent_categories = []
+        try:
+            parents = db.query(Categories).filter(
+                Categories.ParentId == None,
+                Categories.IsDeleted == False,
+                Categories.IsActive == True
+            ).order_by(Categories.SortOrder).all()
+            for p in parents:
+                parent_categories.append({
+                    'title': p.Title,
+                    'description': p.Description,
+                    'slug': p.Slug,
+                    'id': p.Id
+                })
+        except Exception:
+            parent_categories = []
         
         # Convert products to list to detach from session properly
         products_list = list(products)
@@ -75,7 +94,8 @@ def index():
                          site_content=site_content,
                          sliders=sliders,
                          testimonials=testimonials,
-                         services=services)
+                         services=services,
+                         parent_categories=parent_categories)
 
 @main_bp.route('/product/<slug>', methods=['GET', 'POST'])
 def product_detail(slug):
@@ -127,6 +147,31 @@ def product_detail(slug):
         comments = []
     
     return render_template('product_detail.html', product=product, comments=comments)
+
+
+@main_bp.route('/category/<slug>')
+def category(slug):
+    """Show children of a category (parent)"""
+    with next(get_session()) as db:
+        cat = db.query(Categories).filter(
+            Categories.Slug == slug,
+            Categories.IsDeleted == False
+        ).first()
+        if not cat:
+            return "دسته مورد نظر یافت نشد", 404
+
+        # Load children (only active, not deleted)
+        children = [
+            {
+                'title': c.Title,
+                'description': c.Description,
+                'slug': c.Slug,
+                'id': c.Id
+            }
+            for c in cat.children if not c.IsDeleted and c.IsActive
+        ]
+
+    return render_template('category_children.html', parent=cat, children=children)
 
 @main_bp.route('/post')
 @main_bp.route('/post/<slug>')
