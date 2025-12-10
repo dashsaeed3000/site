@@ -16,9 +16,9 @@ from admin_area.form_fields import ImageUploadField, CKEditorField
 class AdminIndexView(AdminIndexView):
     """Custom admin index view with authentication check and statistics"""
     
-    # Use custom RTL base template
-    base_template = 'admin_base.html'
-    template = 'admin/index.html'
+    # Use custom RTL base template with Sash design
+    base_template = 'admin_base_sash.html'
+    template = 'admin/dashboard_sash.html'
 
     def is_accessible(self):
         """Check if user can access admin panel"""
@@ -226,8 +226,8 @@ class AdminIndexView(AdminIndexView):
 class SecureModelView(ModelView):
     """Base ModelView that is only accessible to admin users."""
     
-    # Use custom RTL base template
-    base_template = 'admin_base.html'
+    # Use custom RTL base template with Sash design
+    base_template = 'admin_base_sash.html'
 
     def __init__(self, model, session, **kwargs):
         super(SecureModelView, self).__init__(model, session, **kwargs)

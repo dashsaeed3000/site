@@ -2,7 +2,7 @@
 Admin Area Routes
 Authentication routes for admin panel
 """
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from pathlib import Path
 
@@ -15,6 +15,13 @@ from app.models.models import Products, Categories, Blogs, ProductComments
 # Set template folder for this blueprint
 template_folder = str(Path(__file__).parent / 'templates')
 admin_area_bp = Blueprint('admin_area', __name__, template_folder=template_folder)
+
+# Route to serve sash static assets
+@admin_area_bp.route('/sash/assets/<path:filename>')
+def sash_assets(filename):
+    """Serve sash template static assets"""
+    sash_assets_folder = Path(__file__).parent / 'templates' / 'sash' / 'assets'
+    return send_from_directory(str(sash_assets_folder), filename)
 
 
 @admin_area_bp.route('/login', methods=['GET', 'POST'])
@@ -32,11 +39,11 @@ def login():
         if user and user.check_password(form.password.data):
             if not user.is_active:
                 flash('Your account is disabled.', 'error')
-                return render_template('login.html', form=form)
+                return render_template('login_sash.html', form=form)
             
             if not user.is_admin():
                 flash('Access denied. Admin privileges required.', 'error')
-                return render_template('login.html', form=form)
+                return render_template('login_sash.html', form=form)
             
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get('next')
@@ -46,7 +53,7 @@ def login():
         else:
             flash('Invalid username or password.', 'error')
     
-    return render_template('login.html', form=form)
+    return render_template('login_sash.html', form=form)
 
 
 @admin_area_bp.route('/logout')
