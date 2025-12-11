@@ -30,9 +30,7 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
     )
-    # create indexes for users
-    op.create_index('ix_users_username', 'users', ['username'], unique=True)
-    op.create_index('ix_users_email', 'users', ['email'], unique=True)
+    # indexes for users are created by column constraints (unique/index attributes)
 
     # Create Orders table
     op.create_table(
