@@ -2,6 +2,10 @@
 
 {% block title %}{% if product %}{{ product.Title }}{% else %}محصول - قالب سایت{% endif %}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product_detail.css') }}">
+{% endblock %}
+
 {% block header %}
 <!-- Header Banner -->
 <section class="banner-header banner-img valign bg-img bg-fixed" data-overlay-darkgray="5" data-background="{% if product and product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}">
@@ -21,18 +25,25 @@
 <!-- Product Detail -->
 <section class="section-padding">
     <div class="container">
+        <!-- Breadcrumb -->
         {% if product %}
-        <div class="row p-2 ">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="background:transparent; padding:0; margin-bottom:0;">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">خانه</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}#projects">محصولات</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.Title }}</li>
+            </ol>
+        </nav>
+        <div class="row p-2">
             <!-- Product Images -->
-            <div class="col-lg-6 col-md-6 mb-30">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="product-image-gallery">
                     <!-- Main Image -->
                     <div class="product-main-image mb-3">
-                        <img id="main-product-image" 
-                             src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
-                             alt="{{ product.Title }}" 
-                             class="img-fluid w-100"
-                             style="border-radius: 8px; max-height: 600px; object-fit: contain; background: #f8f9fa;">
+                            <img id="main-product-image" 
+                                src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
+                                alt="{{ product.Title }}" 
+                                class="img-fluid w-100">
                     </div>
                     
                     <!-- Thumbnail Images -->
@@ -40,23 +51,21 @@
                     <div class="product-thumbnails">
                         <div class="row">
                             <!-- Main image thumbnail -->
-                            <div class="col-3 col-md-2 mb-2">
+                            <div class="col-4 col-sm-3 col-md-2 mb-2">
                                 <div class="thumbnail-item {% if not product.images or product.images|length == 0 %}active{% endif %}" 
-                                     onclick="changeMainImage('{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}')">
-                                    <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
+                                     onclick="changeMainImage(this, '{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}')">
+                                     <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
                                          alt="{{ product.Title }}" 
-                                         class="img-fluid"
-                                         style="border-radius: 4px; cursor: pointer; border: 2px solid transparent; padding: 2px;">
+                                         class="img-fluid">
                                 </div>
                             </div>
                             <!-- Additional images -->
                             {% for image in product.images %}
-                            <div class="col-3 col-md-2 mb-2">
-                                <div class="thumbnail-item" onclick="changeMainImage('{{ image.ImageUrl }}')">
+                            <div class="col-4 col-sm-3 col-md-2 mb-2">
+                                <div class="thumbnail-item" onclick="changeMainImage(this, '{{ image.ImageUrl }}')">
                                     <img src="{{ image.ImageUrl }}" 
                                          alt="{{ image.AltText or product.Title }}" 
-                                         class="img-fluid"
-                                         style="border-radius: 4px; cursor: pointer; border: 2px solid transparent; padding: 2px;">
+                                         class="img-fluid">
                                 </div>
                             </div>
                             {% endfor %}
@@ -67,37 +76,37 @@
             </div>
             
             <!-- Product Information & Order Section -->
-            <div class="col-lg-6 col-md-6 mb-30">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="product-info-section">
                     <!-- Product Title -->
-                    <h1 class="product-title mb-3" style="font-family: 'Vazir'; font-size: 32px; font-weight: 400; line-height: 1.4;">
+                    <h1 class="product-title mb-3">
                         {{ product.Title }}
                     </h1>
                     
                     <!-- Product SKU -->
                     {% if product.SKU %}
-                    <p class="product-sku mb-2" style="color: #6c757d; font-size: 14px;">
-                        <span style="font-weight: bold;">کد محصول:</span> {{ product.SKU }}
+                    <p class="product-sku mb-2">
+                        <span class="product-sku-label">کد محصول:</span> {{ product.SKU }}
                     </p>
                     {% endif %}
                     
                     <!-- Product Price -->
                     <div class="product-price mb-4">
-                        <span class="price-label" style="font-size: 18px; color: #6c757d;">قیمت:</span>
-                        <span class="price-value" style="font-size: 36px; font-weight: bold; color: #b19777; margin-right: 10px;">
+                        <span class="price-label">قیمت:</span>
+                        <span class="price-value">
                             {{ "{:,.0f}".format(product.Price|float) }}
                         </span>
-                        <span style="font-size: 18px; color: #6c757d;">تومان</span>
+                        <span class="currency">تومان</span>
                     </div>
                     
                     <!-- Stock Status -->
                     <div class="product-stock mb-4">
                         {% if product.Stock and product.Stock|float > 0 %}
-                            <span class="stock-badge" style="display: inline-block; padding: 8px 16px; color: #155724; border-radius: 4px; font-size: 14px;">
+                            <span class="stock-badge">
                                 <i class="ti-check"></i> موجود در انبار ({{ "{:,.0f}".format(product.Stock|float) }} عدد)
                             </span>
                         {% else %}
-                            <span class="stock-badge" style="display: inline-block; padding: 8px 16px; background: #f8d7da; color: #721c24; border-radius: 4px; font-size: 14px;">
+                            <span class="stock-badge out-of-stock">
                                 <i class="ti-close"></i> ناموجود
                             </span>
                         {% endif %}
@@ -106,24 +115,25 @@
                     <!-- Short Description -->
                     {% if product.ShortDescription %}
                     <div class="product-short-description mb-4">
-                        <p style="font-size: 16px; line-height: 1.8; color: #495057;">
+                        <p>
                             {{ product.ShortDescription }}
                         </p>
                     </div>
                     {% endif %}
                     
                     <!-- Add to Cart Section -->
-                    <div class="product-add-to-cart mb-4" style="padding: 25px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <div class="product-add-to-cart mb-4">
                         <form id="add-to-cart-form" method="POST" action="{{ url_for('main.cart') }}">
                             <input type="hidden" name="product_id" value="{{ product.Id }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             
                             <!-- Quantity Selector -->
                             <div class="quantity-selector mb-3">
-                                <label for="quantity" style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">تعداد:</label>
-                                <div class="input-group" style="max-width: 200px;">
-                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity()" style="background: #001f3f; color: #fff; border: none; padding: 10px 15px; border-radius: 4px 0 0 4px; cursor: pointer;">
-                                        <i class="ti-minus"></i>
+                                <label for="quantity" class="quantity-label">تعداد:</label>
+                                <div class="input-group">
+                                    
+                                     <button type="button" class="quantity-btn quantity-btn-right" onclick="increaseQuantity()">
+                                        <i class="ti-plus"></i>
                                     </button>
                                     <input type="number" 
                                            id="quantity" 
@@ -131,18 +141,18 @@
                                            value="1" 
                                            min="1" 
                                            max="{% if product.Stock %}{{ product.Stock|int }}{% else %}999{% endif %}"
-                                           style="text-align: center; border: 1px solid #dee2e6; border-left: none; border-right: none; padding: 10px; width: 80px; font-size: 16px;">
-                                    <button type="button" class="quantity-btn" onclick="increaseQuantity()" style="background: #001f3f; color: #fff; border: none; padding: 10px 15px; border-radius: 0 4px 4px 0; cursor: pointer;">
-                                        <i class="ti-plus"></i>
+                                           class="quantity-input">
+                                   <button type="button" class="quantity-btn quantity-btn-left" onclick="decreaseQuantity()">
+                                        <i class="ti-minus"></i>
                                     </button>
+
                                 </div>
                             </div>
                             
-                            <!-- Add to Cart Button -->
-                            <button type="submit" 
-                                    class="butn-dark w-100" 
-                                    {% if not product.Stock or product.Stock|float <= 0 %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}
-                                    style="width: 100%; padding: 15px; font-size: 18px; margin-top: 15px;">
+                                <!-- Add to Cart Button -->
+                                <button type="submit" 
+                                    class="btn btn-primary btn-block add-to-cart-btn" 
+                                    {% if not product.Stock or product.Stock|float <= 0 %}disabled{% endif %}>
                                 <span>
                                     {% if product.Stock and product.Stock|float > 0 %}
                                         <i class="ti-shopping-cart"></i> افزودن به سبد خرید
@@ -157,10 +167,10 @@
                     <!-- Product Description -->
                     {% if product.Description %}
                     <div class="product-description mt-4">
-                        <h3 style="font-family: 'Vazir'; font-size: 24px; font-weight: 400; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #b19777;">
+                        <h3 class="product-description-heading">
                             توضیحات محصول
                         </h3>
-                        <div style="font-size: 16px; line-height: 1.8; color: #495057;">
+                        <div class="desc-body">
                             {{ product.Description|safe }}
                         </div>
                     </div>
@@ -174,16 +184,15 @@
         <div class="row mt-5">
             <div class="col-md-12">
                 <h3 class="section-title mb-4">تصاویر بیشتر</h3>
-                <div class="row">
+                            <div class="row">
                     {% for image in product.images %}
-                    <div class="col-md-4 col-sm-6 mb-4 gallery-item">
+                                <div class="col-12 col-sm-6 col-md-4 mb-4 gallery-item">
                         <a href="{{ image.ImageUrl }}" title="{{ image.AltText or product.Title }}" class="img-zoom">
                             <div class="gallery-box">
                                 <div class="gallery-img">
-                                    <img src="{{ image.ImageUrl }}" 
-                                         class="img-fluid w-100" 
-                                         alt="{{ image.AltText or product.Title }}"
-                                         style="border-radius: 8px; height: 250px; object-fit: cover;">
+                                            <img src="{{ image.ImageUrl }}" 
+                                                 class="img-fluid w-100" 
+                                                 alt="{{ image.AltText or product.Title }}">
                                 </div>
                             </div>
                         </a>
@@ -207,13 +216,13 @@
         {% if product %}
         <div class="row mt-5">
             <div class="col-md-12">
-                <h3 class="section-title mb-4" style="font-family: 'Vazir'; font-size: 28px; font-weight: 400; color: #001f3f; padding-bottom: 15px; border-bottom: 2px solid #b19777;">
+                <h3 class="section-title mb-4 comments-title">
                     نظرات کاربران
                 </h3>
                 
                 <!-- Comment Form -->
-                <div class="comment-form-section mb-5" style="padding: 30px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-                    <h4 style="font-family: 'Vazir'; font-size: 20px; font-weight: 400; color: #001f3f; margin-bottom: 20px;">
+                <div class="comment-form-section mb-5">
+                    <h4 class="comment-form-title">
                         نظر خود را بنویسید
                     </h4>
                     <form method="POST" action="{{ url_for('main.product_detail', slug=product.Slug) }}">
@@ -222,28 +231,28 @@
                         
                         <!-- Rating (optional) -->
                         <div class="mb-3">
-                            <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">امتیاز (اختیاری):</label>
+                            <label class="rating-label">امتیاز (اختیاری):</label>
                             <div class="rating-input" style="direction: rtl;">
                                 {% for i in range(5, 0, -1) %}
                                 <input type="radio" name="rating" id="rating{{ i }}" value="{{ i }}" style="display: none;">
-                                <label for="rating{{ i }}" style="font-size: 24px; color: #ddd; cursor: pointer; margin-left: 5px;" onmouseover="this.style.color='#b19777'" onmouseout="updateRatingColor()" onclick="setRating({{ i }})">★</label>
+                                <label for="rating{{ i }}" class="rating-star" onmouseover="this.style.color='#b19777'" onmouseout="updateRatingColor()" onclick="setRating({{ i }})">★</label>
                                 {% endfor %}
                             </div>
                         </div>
                         
                         <!-- Comment Text -->
                         <div class="mb-3">
-                            <label for="comment_body" style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">نظر شما:</label>
+                            <label for="comment_body" class="comment-label">نظر شما:</label>
                             <textarea name="comment_body" 
                                       id="comment_body" 
                                       rows="5" 
                                       required
-                                      style="width: 100%; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir'; font-size: 16px; direction: rtl; text-align: right;"
+                                      class="comment-textarea"
                                       placeholder="نظر خود را اینجا بنویسید..."></textarea>
                         </div>
                         
                         <!-- Submit Button -->
-                        <button type="submit" class="butn-dark" style="padding: 12px 30px; font-size: 16px;">
+                        <button type="submit" class="btn btn-primary">
                             <span>ارسال نظر</span>
                         </button>
                     </form>
@@ -253,11 +262,11 @@
                 <div class="comments-list">
                     {% if comments and comments|length > 0 %}
                         {% for comment in comments %}
-                        <div class="comment-item mb-4" style="padding: 20px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; border-right: 4px solid #b19777;">
-                            <div class="comment-header mb-3" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e9ecef; padding-bottom: 10px;">
+                        <div class="comment-item mb-4">
+                            <div class="comment-header mb-3">
                                 <div>
-                                    <strong style="color: #001f3f; font-size: 16px;">کاربر</strong>
-                                    <span style="color: #6c757d; font-size: 14px; margin-right: 15px;">
+                                    <strong class="comment-author">کاربر</strong>
+                                    <span class="comment-date">
                                         {{ comment.CreatedAt|persian_date }}
                                     </span>
                                 </div>
@@ -273,34 +282,33 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            <div class="comment-body" style="color: #495057; font-size: 16px; line-height: 1.8; margin-bottom: 15px;">
+                            <div class="comment-body">
                                 {{ comment.Body }}
                             </div>
                             
                             <!-- Reply Button -->
                             <button type="button" 
-                                    class="reply-btn" 
-                                    onclick="showReplyForm('{{ comment.Id }}')"
-                                    style="background: transparent; border: 1px solid #b19777; color: #b19777; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-family: 'Vazir';">
+                                    class="btn btn-outline-primary reply-btn" 
+                                    onclick="showReplyForm('{{ comment.Id }}')">
                                 <i class="ti-back-left"></i> پاسخ
                             </button>
                             
                             <!-- Reply Form (hidden by default) -->
-                            <div id="reply-form-{{ comment.Id }}" class="reply-form mt-3" style="display: none; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                            <div id="reply-form-{{ comment.Id }}" class="reply-form mt-3" style="display: none;">
                                 <form method="POST" action="{{ url_for('main.product_detail', slug=product.Slug) }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="parent_id" value="{{ comment.Id }}">
                                     <textarea name="comment_body" 
                                               rows="3" 
                                               required
-                                              style="width: 100%; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir'; font-size: 16px; direction: rtl; text-align: right; margin-bottom: 10px;"
+                                              class="comment-textarea"
                                               placeholder="پاسخ خود را بنویسید..."></textarea>
-                                    <button type="submit" class="butn-dark" style="padding: 10px 25px; font-size: 14px;">
+                                    <button type="submit" class="btn btn-primary">
                                         <span>ارسال پاسخ</span>
                                     </button>
                                     <button type="button" 
                                             onclick="hideReplyForm('{{ comment.Id }}')"
-                                            style="background: #6c757d; color: #fff; border: none; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+                                            class="btn btn-secondary btn-cancel">
                                         انصراف
                                     </button>
                                 </form>
@@ -308,16 +316,16 @@
                             
                             <!-- Replies -->
                             {% if comment.replies_list and comment.replies_list|length > 0 %}
-                            <div class="comment-replies mt-3" style="margin-right: 30px; padding-right: 20px; border-right: 2px solid #e9ecef;">
+                            <div class="comment-replies mt-3">
                                 {% for reply in comment.replies_list %}
-                                <div class="reply-item mb-3" style="padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                                    <div class="reply-header mb-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                        <strong style="color: #001f3f; font-size: 14px;">کاربر</strong>
-                                        <span style="color: #6c757d; font-size: 12px;">
+                                <div class="reply-item mb-3">
+                                    <div class="reply-header mb-2">
+                                        <strong class="reply-author">کاربر</strong>
+                                        <span class="reply-date">
                                             {{ reply.CreatedAt|persian_date }}
                                         </span>
                                     </div>
-                                    <div class="reply-body" style="color: #495057; font-size: 15px; line-height: 1.7;">
+                                    <div class="reply-body">
                                         {{ reply.Body }}
                                     </div>
                                 </div>
@@ -327,8 +335,8 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="no-comments text-center" style="padding: 40px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-                            <p style="color: #6c757d; font-size: 16px;">هنوز نظری ثبت نشده است. اولین نفری باشید که نظر می‌دهد!</p>
+                        <div class="no-comments text-center">
+                            <p>هنوز نظری ثبت نشده است. اولین نفری باشید که نظر می‌دهد!</p>
                         </div>
                     {% endif %}
                 </div>
@@ -342,11 +350,9 @@
                 <div class="row mt-3">
                     <div class="col-md-12">
                         {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" 
-                             role="alert" 
-                             style="padding: 15px; margin-bottom: 20px; border-radius: 4px; direction: rtl; text-align: right; background: {% if category == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if category == 'success' %}#155724{% else %}#721c24{% endif %}; border: 1px solid {% if category == 'success' %}#c3e6cb{% else %}#f5c6cb{% endif %};">
+                        <div class="flash-message {{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
                             {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: left; font-size: 24px; font-weight: bold; line-height: 1; color: inherit; opacity: 0.5;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -386,14 +392,15 @@
 
 {% block extra_js %}
 <script>
-    function changeMainImage(imageUrl) {
+    function changeMainImage(elem, imageUrl) {
         document.getElementById('main-product-image').src = imageUrl;
-        
-        // Update active thumbnail
+
+        // Update active thumbnail by toggling .active class
         document.querySelectorAll('.thumbnail-item').forEach(function(item) {
-            item.style.border = '2px solid transparent';
+            item.classList.remove('active');
         });
-        event.currentTarget.closest('.thumbnail-item').style.border = '2px solid #b19777';
+        var thumb = (elem && elem.closest) ? elem.closest('.thumbnail-item') || elem : elem;
+        if (thumb) thumb.classList.add('active');
     }
     
     function increaseQuantity() {
@@ -451,44 +458,12 @@
         }
     }
     
-    // Initialize thumbnail borders
+    // Initialize thumbnail active state
     document.addEventListener('DOMContentLoaded', function() {
         var firstThumbnail = document.querySelector('.thumbnail-item');
         if (firstThumbnail) {
-            firstThumbnail.style.border = '2px solid #b19777';
+            firstThumbnail.classList.add('active');
         }
     });
 </script>
-
-<style>
-    .thumbnail-item {
-        transition: all 0.3s ease;
-    }
-    
-    .thumbnail-item:hover {
-        transform: scale(1.05);
-    }
-    
-    .thumbnail-item img {
-        transition: all 0.3s ease;
-    }
-    
-    .quantity-btn:hover {
-        background: #b19777 !important;
-    }
-    
-    @media (max-width: 768px) {
-        .product-title {
-            font-size: 24px !important;
-        }
-        
-        .price-value {
-            font-size: 28px !important;
-        }
-        
-        .product-main-image img {
-            max-height: 400px !important;
-        }
-    }
-</style>
 {% endblock %}

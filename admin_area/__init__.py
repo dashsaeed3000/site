@@ -42,9 +42,13 @@ def init_admin_area(app: Flask):
         from .models import get_user_by_id
         return get_user_by_id(user_id)
 
+
     # Add Persian date filter to admin templates
     from app.utils.persian_date import to_persian_date
     app.jinja_env.filters['persian_date'] = to_persian_date
+
+    # NOTE: Sash assets are served from templates/sash/assets for legacy reasons.
+    # For production, move all Sash assets to static/sash/assets and update the blueprint route if needed.
 
     # Initialize Flask-Admin
     admin.init_app(app, index_view=AdminIndexView(name='Home', url='/admin'))

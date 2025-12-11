@@ -18,6 +18,7 @@
 	<link href="{{ url_for('admin_area.sash_assets', filename='plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
 	<link href="{{ url_for('admin_area.sash_assets', filename='plugins/iconfonts/icons.css') }}" rel="stylesheet" />
+	<link href="{{ url_for('admin_area.sash_assets', filename='css/fa-fix.css') }}" rel="stylesheet" />
 	
 	<!-- Custom Css -->
 	<link href="{{ url_for('admin_area.sash_assets', filename='css/main.css') }}" rel="stylesheet">
@@ -78,13 +79,30 @@
 		h1, h2, h3, h4, h5, h6 {
 			font-family: 'Vazir', sans-serif !important;
 		}
+
+		/* Move the left sidebar visually to the right while keeping JS selectors intact */
+		#leftsidebar {
+			right: 0 !important;
+			left: auto !important;
+			float: right !important;
+		}
+
+		/* Ensure main content has space on the right for the sidebar */
+		section.content, section.content.home {
+			margin-right: 260px !important;
+			margin-left: 0 !important;
+		}
+
+		@media (max-width: 1170px) {
+			section.content, section.content.home { margin-right: 0 !important; }
+		}
 	</style>
 	
 	{% block head %}
 	{% endblock %}
 </head>
 
-<body class="theme-blush rtl">
+<body class="theme-blush rtl" >
 
 	<!-- Page Loader -->
 	<div class="page-loader-wrapper">
@@ -203,7 +221,27 @@
 	<!-- NAVBAR END -->
 
 	<!-- SCRIPTS -->
-	<!-- Jquery Core Js -->
+	<!-- Ensure jQuery and Bootstrap from Flask-Admin are available before Sash bundles -->
+	<script {{ admin_csp_nonce_attribute }} src="{{ admin_static.url(filename='vendor/jquery.min.js', v='3.5.1') }}" type="text/javascript"></script>
+	<script {{ admin_csp_nonce_attribute }} src="{{ admin_static.url(filename='bootstrap/bootstrap4/js/popper.min.js') }}" type="text/javascript"></script>
+	<script {{ admin_csp_nonce_attribute }} src="{{ admin_static.url(filename='bootstrap/bootstrap4/js/bootstrap.min.js', v='4.2.1') }}" type="text/javascript"></script>
+
+	<!-- Quick polyfills to avoid runtime errors in bundled Sash scripts when plugins are missing -->
+	<script type="text/javascript">
+		(function(){
+			if (typeof jQuery !== 'undefined') {
+				if (typeof jQuery.browser === 'undefined') {
+					jQuery.browser = {};
+				}
+				// Provide a no-op slimscroll if plugin not attached yet to avoid errors
+				if (typeof jQuery.fn.slimScroll === 'undefined') {
+					jQuery.fn.slimScroll = jQuery.fn.slimscroll = function() { return this; };
+				}
+			}
+		})();
+	</script>
+
+	<!-- Sash theme bundles (depend on jQuery being present) -->
 	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/libscripts.bundle.js') }}"></script>
 	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/morphingsearchscripts.bundle.js') }}"></script>
 	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/vendorscripts.bundle.js') }}"></script>
@@ -211,7 +249,7 @@
 
 	<!-- Perfectscroll js-->
 	<script src="{{ url_for('admin_area.sash_assets', filename='plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
-	<script src="{{ url_for('admin_area.sash_assets', filename='plugins/perfect-scrollbar/p-scroll.js') }}"></script>
+	<script src="{{ url_for('admin_area.sash_assets', filename='plugins/perfect-scrollbar/p-scroll-safe.js') }}"></script>
 
 	<!-- Custom js-->
 	<script src="{{ url_for('admin_area.sash_assets', filename='js/custom.js') }}"></script>
@@ -238,6 +276,21 @@
 		<script {{ admin_csp_nonce_attribute }} src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
 		<script {{ admin_csp_nonce_attribute }} src="https://cdn.ckeditor.com/4.22.1/full/lang/fa.js"></script>
 	{% endblock %}
+
+	<script type="text/javascript">
+		// Fallback: hide page loader on window load to avoid infinite overlay if other scripts fail
+		window.addEventListener('load', function() {
+			try {
+				var loader = document.querySelector('.page-loader-wrapper');
+				if (loader) {
+					loader.style.display = 'none';
+					loader.classList.remove('show');
+				}
+			} catch (e) {
+				console.warn('Error hiding loader:', e);
+			}
+		});
+	</script>
 
 	{% block tail %}
 	{% endblock %}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+	<!-- Meta data -->
+	<meta charset="UTF-8">
+	<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="ورود به پنل مدیریت">
+	<meta name="author" content="">
+	<!-- Title -->
+	<title>ورود به پنل مدیریت</title>
+	<link rel="icon" href="{{ url_for('admin_area.sash_assets', filename='images/favicon.ico') }}" type="image/x-icon">
+	
+	<!-- Bootstrap CSS -->
+	<link href="{{ url_for('admin_area.sash_assets', filename='plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+	<link href="{{ url_for('admin_area.sash_assets', filename='plugins/iconfonts/icons.css') }}" rel="stylesheet" />
+	
+	<!-- Custom Css -->
+	<link href="{{ url_for('admin_area.sash_assets', filename='css/main.css') }}" rel="stylesheet">
+	<link href="{{ url_for('admin_area.sash_assets', filename='css/themes/all-themes.css') }}" rel="stylesheet" />
+	
+	<!-- Persian Font -->
+	<style>
+		@font-face {
+			font-family: "Vazir";
+			src: url("{{ url_for('static', filename='fonts/Vazir.ttf') }}");
+		}
+		* {
+			font-family: 'Vazir', sans-serif !important;
+		}
+		body {
+			direction: rtl;
+			text-align: right;
+			font-family: 'Vazir', sans-serif !important;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.login-container {
+			max-width: 450px;
+			width: 100%;
+			padding: 20px;
+		}
+		.login-card {
+			background: white;
+			border-radius: 10px;
+			box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+			padding: 40px;
+		}
+		.login-header {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+		.login-header img {
+			max-width: 150px;
+			margin-bottom: 20px;
+		}
+		.login-header h2 {
+			color: #333;
+			margin-bottom: 10px;
+			font-weight: bold;
+		}
+		.login-header p {
+			color: #666;
+			font-size: 14px;
+		}
+		.form-label {
+			font-weight: 500;
+			margin-bottom: 8px;
+			color: #333;
+		}
+		.form-control {
+			border-radius: 5px;
+			border: 1px solid #ddd;
+			padding: 10px 15px;
+			font-size: 14px;
+		}
+		.form-control:focus {
+			border-color: #667eea;
+			box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+		}
+		.btn-login {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border: none;
+			border-radius: 5px;
+			padding: 12px;
+			font-weight: 500;
+			width: 100%;
+			margin-top: 10px;
+		}
+		.btn-login:hover {
+			background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+			transform: translateY(-1px);
+			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+		}
+		.alert {
+			border-radius: 5px;
+			margin-bottom: 20px;
+		}
+		.form-check-label {
+			font-size: 14px;
+			color: #666;
+		}
+	</style>
+</head>
+<body class="rtl">
+	<div class="login-container">
+		<div class="login-card">
+			<div class="login-header">
+				<img src="{{ url_for('admin_area.sash_assets', filename='images/logo.png') }}" alt="Logo">
+				<h2>ورود به پنل مدیریت</h2>
+				<p>لطفاً اطلاعات ورود خود را وارد کنید</p>
+			</div>
+			
+			{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+					{% for category, message in messages %}
+						<div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+							{{ message }}
+							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+					{% endfor %}
+				{% endif %}
+			{% endwith %}
+			
+			<form method="POST" action="{{ url_for('admin_area.login') }}">
+				{{ form.hidden_tag() }}
+				
+				<div class="mb-3">
+					{{ form.username.label(class="form-label") }}
+					{{ form.username(class="form-control") }}
+					{% if form.username.errors %}
+						<div class="text-danger small mt-1">
+							{% for error in form.username.errors %}
+								<div>{{ error }}</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+				
+				<div class="mb-3">
+					{{ form.password.label(class="form-label") }}
+					{{ form.password(class="form-control") }}
+					{% if form.password.errors %}
+						<div class="text-danger small mt-1">
+							{% for error in form.password.errors %}
+								<div>{{ error }}</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+				
+				<div class="mb-3 form-check">
+					{{ form.remember_me(class="form-check-input") }}
+					{{ form.remember_me.label(class="form-check-label") }}
+				</div>
+				
+				<div class="d-grid">
+					{{ form.submit(class="btn btn-primary btn-login") }}
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	<!-- Scripts -->
+	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/libscripts.bundle.js') }}"></script>
+	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/vendorscripts.bundle.js') }}"></script>
+	<script src="{{ url_for('admin_area.sash_assets', filename='bundles/mainscripts.bundle.js') }}"></script>
+	<script src="{{ url_for('admin_area.sash_assets', filename='js/custom.js') }}"></script>
+</body>
+</html>
+

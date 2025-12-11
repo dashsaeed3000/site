@@ -62,11 +62,13 @@
                             <div class="quantity-controls" style="display: flex; align-items: center; gap: 10px;">
                                 <label style="margin: 0; font-weight: bold;">تعداد:</label>
                                 <div class="input-group" style="max-width: 150px;">
+                               
+
                                     <button type="button" 
                                             class="quantity-btn" 
-                                            onclick="updateQuantity('{{ item.product_id }}', {{ item.quantity - 1 }})"
-                                            style="background: #001f3f; color: #fff; border: none; padding: 8px 12px; border-radius: 4px 0 0 4px; cursor: pointer;">
-                                        <i class="ti-minus"></i>
+                                            onclick="updateQuantity('{{ item.product_id }}', {{ item.quantity + 1 }})"
+                                            style="background: #001f3f; color: #fff; border: none; padding: 8px 12px; border-radius: 0 4px 4px 0; cursor: pointer;">
+                                        <i class="ti-plus"></i>
                                     </button>
                                     <input type="number" 
                                            id="quantity-{{ item.product_id }}"
@@ -75,11 +77,11 @@
                                            max="{% if item.product.Stock %}{{ item.product.Stock|int }}{% else %}999{% endif %}"
                                            onchange="updateQuantity('{{ item.product_id }}', this.value)"
                                            style="text-align: center; border: 1px solid #dee2e6; border-left: none; border-right: none; padding: 8px; width: 60px;">
-                                    <button type="button" 
+                                         <button type="button" 
                                             class="quantity-btn" 
-                                            onclick="updateQuantity('{{ item.product_id }}', {{ item.quantity + 1 }})"
-                                            style="background: #001f3f; color: #fff; border: none; padding: 8px 12px; border-radius: 0 4px 4px 0; cursor: pointer;">
-                                        <i class="ti-plus"></i>
+                                            onclick="updateQuantity('{{ item.product_id }}', {{ item.quantity - 1 }})"
+                                            style="background: #001f3f; color: #fff; border: none; padding: 8px 12px; border-radius: 4px 0 0 4px; cursor: pointer;">
+                                        <i class="ti-minus"></i>
                                     </button>
                                 </div>
                                 <span style="color: #001f3f; font-weight: bold;">
@@ -197,6 +199,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
                 product_id: productId,

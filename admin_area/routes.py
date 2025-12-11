@@ -17,11 +17,51 @@ template_folder = str(Path(__file__).parent / 'templates')
 admin_area_bp = Blueprint('admin_area', __name__, template_folder=template_folder)
 
 # Route to serve sash static assets
+import os
 @admin_area_bp.route('/sash/assets/<path:filename>')
 def sash_assets(filename):
     """Serve sash template static assets"""
-    sash_assets_folder = Path(__file__).parent / 'templates' / 'sash' / 'assets'
-    return send_from_directory(str(sash_assets_folder), filename)
+    # Try to serve from templates/sash/assets (legacy) or static/sash/assets (preferred)
+    base_dir = Path(__file__).parent
+    legacy_path = base_dir / 'templates' / 'sash' / 'assets'
+    static_path = Path(os.path.abspath(os.path.join(base_dir, '..', 'static', 'sash', 'assets')))
+    if (legacy_path / filename).exists():
+        return send_from_directory(str(legacy_path), filename)
+    elif (static_path / filename).exists():
+        return send_from_directory(str(static_path), filename)
+    else:
+        return '', 404
+
+
+# Diagnostic endpoint to verify presence of icon font files on the server
+@admin_area_bp.route('/sash/diagnose_fonts')
+def diagnose_fonts():
+    """Return JSON indicating whether key icon font files exist in legacy or static asset folders."""
+    import json, os
+    base_dir = Path(__file__).parent
+    legacy_path = base_dir / 'templates' / 'sash' / 'assets'
+    static_path = Path(os.path.abspath(os.path.join(base_dir, '..', 'static', 'sash', 'assets')))
+
+    check_files = [
+        'plugins/iconfonts/font/fontawesome-webfont.woff',
+        'plugins/iconfonts/font/fontawesome-webfont.woff2',
+        'plugins/iconfonts/fonts/feather/feather-webfont.woff',
+        'plugins/iconfonts/fonts/feather/feather-webfont.ttf',
+    ]
+
+    result = {}
+    for f in check_files:
+        legacy_file = legacy_path / f
+        static_file = static_path / f
+        result[f] = {
+            'legacy_exists': legacy_file.exists(),
+            'legacy_size': legacy_file.stat().st_size if legacy_file.exists() else 0,
+            'static_exists': static_file.exists(),
+            'static_size': static_file.stat().st_size if static_file.exists() else 0,
+            'url': '/admin/sash/assets/' + f
+        }
+
+    return jsonify(result)
 
 
 @admin_area_bp.route('/login', methods=['GET', 'POST'])
@@ -29,8 +69,8 @@ def login():
     """Login route"""
     if current_user.is_authenticated:
         if hasattr(current_user, 'is_admin') and current_user.is_admin():
-            # Redirect to Flask-Admin panel
-            return redirect('/admin')
+            # Redirect to Flask-Admin panel (ensure trailing slash)
+            return redirect('/admin/')
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -48,7 +88,7 @@ def login():
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get('next')
             if not next_page:
-                next_page = '/admin'
+                next_page = '/admin/'
             return redirect(next_page)
         else:
             flash('Invalid username or password.', 'error')

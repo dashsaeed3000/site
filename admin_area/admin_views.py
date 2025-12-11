@@ -27,7 +27,7 @@ class AdminIndexView(AdminIndexView):
     def inaccessible_callback(self, name, **kwargs):
         """Redirect to login if not accessible"""
         flash('برای دسترسی به این بخش، باید به عنوان مدیر وارد شوید.', 'warning')
-        return redirect(url_for('admin_area.login', next='/admin'))
+        return redirect(url_for('admin_area.login', next='/admin/'))
     
     @expose('/')
     def index(self):
@@ -182,7 +182,8 @@ class AdminIndexView(AdminIndexView):
             except Exception:
                 vm_stats_json = '{}'
             
-            return self.render('admin/index.html', stats=stats, vm_stats_json=vm_stats_json)
+            # Render using the Sash dashboard template defined on this view
+            return self.render(self.template, stats=stats, vm_stats_json=vm_stats_json)
         except Exception as e:
             # Log the exception and render the dashboard with safe defaults
             logging.getLogger(__name__).exception('Error building admin dashboard statistics')
@@ -212,7 +213,8 @@ class AdminIndexView(AdminIndexView):
             }
             try:
                 vm_stats_json = '{}'
-                return self.render('admin/index.html', stats=stats, vm_stats_json=vm_stats_json)
+                # Use Sash dashboard template for consistent admin UI
+                return self.render(self.template, stats=stats, vm_stats_json=vm_stats_json)
             finally:
                 db.close()
         finally:
@@ -239,7 +241,7 @@ class SecureModelView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         """Redirect to login if not accessible"""
         flash('برای دسترسی به این بخش، باید به عنوان مدیر وارد شوید.', 'warning')
-        return redirect(url_for('admin_area.login', next='/admin'))
+        return redirect(url_for('admin_area.login', next='/admin/'))
 
 
 class LocalizedModelView(SecureModelView):

@@ -1,0 +1,51 @@
+/* Override font-face with absolute URLs so fonts are served through the admin asset route */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.eot?v=4.7.0');
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.woff2?v=4.7.0') format('woff2'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.woff?v=4.7.0') format('woff'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.ttf?v=4.7.0') format('truetype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Font Awesome 5 - brands */
+@font-face {
+  font-family: 'Font Awesome 5 Brands';
+  font-style: normal;
+  font-weight: normal;
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.eot');
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.eot?#iefix') format('embedded-opentype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.woff2') format('woff2'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.woff') format('woff'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.ttf') format('truetype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-brands-400.svg#fontawesome') format('svg');
+}
+@font-face {
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.eot');
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.eot?#iefix') format('embedded-opentype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.woff2') format('woff2'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.woff') format('woff'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.ttf') format('truetype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-regular-400.svg#fontawesome') format('svg');
+}
+@font-face {
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-weight: 900;
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.eot');
+  src: url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.eot?#iefix') format('embedded-opentype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.woff2') format('woff2'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.woff') format('woff'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.ttf') format('truetype'),
+       url('/admin/sash/assets/plugins/iconfonts/font-awesome/fa-solid-900.svg#fontawesome') format('svg');
+}
+/* Ensure the FA class families are present */
+.fa { font-family: 'FontAwesome' !important; }
+.fab { font-family: 'Font Awesome 5 Brands' !important; }
+.far, .fa-regular { font-family: 'Font Awesome 5 Free' !important; font-weight: 400 !important; }
+.fas, .fa-solid { font-family: 'Font Awesome 5 Free' !important; font-weight: 900 !important; }

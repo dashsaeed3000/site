@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, send_from_directory, flash, jsonify
+from flask import Blueprint, render_template, render_template_string, request, redirect, url_for, session, send_from_directory, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from pathlib import Path
+from datetime import datetime
 from ..config.settings import settings
 from ..repositories.db import get_session
 from ..services.product_service import ProductService
-from ..models.models import Categories
+from ..models.models import Categories, Products
 from ..services.site_content_service import SiteContentService
 from ..services.comment_service import CommentService
 from ..services.cart_service import CartService
@@ -145,8 +146,44 @@ def product_detail(slug):
                 comment.replies_list = comment_svc.get_comment_replies(comment.Id, approved_only=True)
     except Exception:
         comments = []
-    
-    return render_template('product_detail.html', product=product, comments=comments)
+
+    # Build reviews summary for template (safe defaults if none)
+    reviews = {
+        'avg': None,
+        'count': 0,
+        'items': []
+    }
+    try:
+        # compute average rating from approved top-level comments that have Rating
+        ratings = [c.Rating for c in comments if getattr(c, 'Rating', None) is not None]
+        if ratings:
+            reviews['avg'] = round(sum(ratings) / len(ratings), 1)
+        reviews['count'] = len(comments)
+        # expose first few comments as review items
+        reviews['items'] = comments[:5]
+    except Exception:
+        reviews = {'avg': None, 'count': 0, 'items': []}
+
+    # Related products (by same category) - safe fallback to empty list
+    related = []
+    try:
+        with next(get_session()) as db:
+            if getattr(product, 'CategoryId', None):
+                related_q = db.query(Products).filter(
+                    Products.CategoryId == product.CategoryId,
+                    Products.IsDeleted == False,
+                    Products.IsActive == True,
+                    Products.Id != product.Id
+                ).limit(4).all()
+                # convert or attach minimal fields expected by template
+                related = list(related_q)
+    except Exception:
+        related = []
+
+    # category for breadcrumbs (product.category was eager-loaded earlier)
+    category = getattr(product, 'category', None)
+
+    return render_template('product_detail.html', product=product, comments=comments, reviews=reviews, related=related, category=category)
 
 
 @main_bp.route('/category/<slug>')
@@ -178,25 +215,177 @@ def category(slug):
 def post(slug=None):
     return render_template('post.html')
 
+
+@main_bp.route('/policy/return')
+def return_policy():
+        # Minimal placeholder page for return policy
+        return render_template_string("""
+        {% extends 'base.html' %}
+        {% block title %}سیاست بازگشت{% endblock %}
+        {% block content %}
+        <div class="container" style="padding:40px 0;">
+            <h2>سیاست بازگشت</h2>
+            <p>اطلاعات بازگشت کالا به زودی اضافه می‌شود. برای پشتیبانی با ما تماس بگیرید.</p>
+        </div>
+        {% endblock %}
+        """)
+
+
+@main_bp.route('/policy/shipping')
+def shipping_info():
+        return render_template_string("""
+        {% extends 'base.html' %}
+        {% block title %}اطلاعات ارسال{% endblock %}
+        {% block content %}
+        <div class="container" style="padding:40px 0;">
+            <h2>اطلاعات ارسال</h2>
+            <p>جزئیات زمان و هزینه ارسال به زودی اضافه می‌شود.</p>
+        </div>
+        {% endblock %}
+        """)
+
+
+@main_bp.route('/policy/privacy')
+def privacy():
+        return render_template_string("""
+        {% extends 'base.html' %}
+        {% block title %}حریم خصوصی{% endblock %}
+        {% block content %}
+        <div class="container" style="padding:40px 0;">
+            <h2>حریم خصوصی</h2>
+            <p>اطلاعات مربوط به حریم خصوصی کاربران به زودی اضافه می‌شود.</p>
+        </div>
+        {% endblock %}
+        """)
+
 @main_bp.route('/search')
 def search():
-    """Search products"""
+    """Search products with advanced filters"""
     query = request.args.get('q', '').strip()
-    products = []
+    category_id = request.args.get('category', '').strip()
+    min_price = request.args.get('min_price', '')
+    max_price = request.args.get('max_price', '')
+    sort_by = request.args.get('sort', 'newest')  # newest, price_low, price_high
     
-    if query:
-        with next(get_session()) as db:
+    products = []
+    categories = []
+    min_price_db = 0
+    max_price_db = 0
+    
+    with next(get_session()) as db:
+        # Get all active categories for filter
+        try:
+            categories_list = db.query(Categories).filter(
+                Categories.IsDeleted == False,
+                Categories.IsActive == True,
+                Categories.ParentId != None  # Only subcategories
+            ).order_by(Categories.Title).all()
+            categories = [{'id': c.Id, 'title': c.Title} for c in categories_list]
+        except Exception:
+            categories = []
+        
+        # Get price range
+        try:
+            from sqlalchemy import func
+            price_result = db.query(func.min(Product.Price), func.max(Product.Price)).filter(
+                Product.IsDeleted == False,
+                Product.IsActive == True
+            ).first()
+            if price_result and price_result[0]:
+                min_price_db = int(price_result[0])
+                max_price_db = int(price_result[1])
+        except Exception:
+            pass
+        
+        # Search and filter products
+        if query:
             svc = ProductService(db)
             products = svc.search_products(query)
-            # Eagerly load category relationships to avoid detached instance errors
+            
+            # Apply category filter
+            if category_id:
+                products = [p for p in products if p.CategoryId == category_id]
+            
+            # Apply price filter
+            try:
+                if min_price and min_price.isdigit():
+                    min_p = int(min_price)
+                    products = [p for p in products if p.Price and float(p.Price) >= min_p]
+                if max_price and max_price.isdigit():
+                    max_p = int(max_price)
+                    products = [p for p in products if p.Price and float(p.Price) <= max_p]
+            except Exception:
+                pass
+            
+            # Eagerly load category relationships
             for product in products:
-                _ = product.category  # Trigger eager load
-            # Convert to list to detach from session properly
+                _ = product.category
+            
+            # Sort products
+            if sort_by == 'price_low':
+                products = sorted(products, key=lambda p: float(p.Price) if p.Price else 0)
+            elif sort_by == 'price_high':
+                products = sorted(products, key=lambda p: float(p.Price) if p.Price else 0, reverse=True)
+            else:  # newest
+                products = sorted(products, key=lambda p: p.CreatedAt or datetime.utcnow(), reverse=True)
+            
+            # Convert to list
             products = list(products)
     
     return render_template('search_results.html', 
                          products=products, 
-                         query=query)
+                         query=query,
+                         categories=categories,
+                         category_id=category_id,
+                         min_price=min_price,
+                         max_price=max_price,
+                         min_price_db=min_price_db,
+                         max_price_db=max_price_db,
+                         sort_by=sort_by)
+
+
+@main_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Contact page: reads SiteContent key 'contact' (or 'contact_us') and displays it.
+    If not present, renders default contact information. Handles simple contact form POST and flashes a message."""
+    from ..services.site_content_service import SiteContentService
+
+    content = None
+    data = None
+    with next(get_session()) as db:
+        sc = SiteContentService(db)
+        # try a few common keys
+        content = sc.get_content_by_key('contact') or sc.get_content_by_key('contact_us')
+        if content:
+            data = sc.parse_json_data(content)
+
+    # Fallback defaults
+    defaults = {
+        'title': getattr(content, 'Title', None) or 'تماس با ما',
+        'subtitle': getattr(content, 'Subtitle', None) or 'ما خوشحال می‌شویم از شما بشنویم',
+        'content_html': getattr(content, 'Content', None) or (
+            '<p>برای ارتباط با ما می‌توانید از روش‌های زیر استفاده کنید یا فرم را پر کنید و پیام خود را ارسال کنید.</p>'
+        ),
+        'address': getattr(content, 'Field1', None) or 'ایران - مشهد - بلوار سجاد',
+        'phone': getattr(content, 'Field2', None) or '+98 203-123-0606',
+        'email': getattr(content, 'Field3', None) or 'info@example.com',
+        'map_embed': getattr(content, 'Field4', None) or None,
+        'image': getattr(content, 'ImageUrl', None) or None,
+    }
+
+    # Handle simple contact form submission (no email sent - just flash)
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        message = request.form.get('message', '').strip()
+        if not message:
+            flash('لطفا پیام خود را بنویسید.', 'error')
+            return redirect(url_for('main.contact'))
+        # For now, just flash success (could be hooked to send email or save to DB)
+        flash('پیام شما ارسال شد. در اسرع وقت با شما تماس خواهیم گرفت.', 'success')
+        return redirect(url_for('main.contact'))
+
+    return render_template('contact.html', content=content, data=data, defaults=defaults)
 
 @main_bp.route('/cart', methods=['GET', 'POST'])
 def cart():

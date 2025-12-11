@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, func
 from ..models.models import Products as Product
 
 class ProductRepository:
@@ -16,18 +17,19 @@ class ProductRepository:
         ).limit(limit).all()
     
     def search_products(self, query: str, limit: int = 50) -> List[Product]:
-        """Search products by title, description, or SKU with eager loading of category"""
+        """Search products by title, description, or SKU with eager loading of category (case-insensitive)"""
         search_term = f"%{query}%"
         return self.db.query(Product).options(
             joinedload(Product.category)
         ).filter(
             Product.IsDeleted == False,
             Product.IsActive == True,
-            (
-                Product.Title.like(search_term) |
-                Product.ShortDescription.like(search_term) |
-                Product.Description.like(search_term) |
-                Product.SKU.like(search_term)
+            or_(
+                Product.Title.ilike(search_term),
+                Product.TitleEn.ilike(search_term),
+                Product.ShortDescription.ilike(search_term),
+                Product.Description.ilike(search_term),
+                Product.SKU.ilike(search_term)
             )
         ).limit(limit).all()
 

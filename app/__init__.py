@@ -20,14 +20,13 @@ def create_app():
     # Import and register blueprints
     from .presentation.routes import main_bp
     from .presentation.api import api_bp
-    from .presentation.admin import admin_bp
     from .presentation.payments import payments_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp, url_prefix='/api/v1')
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
-    # Legacy products admin (kept but moved away from /admin to avoid conflict with Flask-Admin)
-    app.register_blueprint(admin_bp, url_prefix='/dashboard/products')
+    # NOTE: legacy admin blueprint `presentation.admin` was removed from registration
+    # to rely solely on the Sash-based Flask-Admin UI under `/admin/`.
 
     # Initialize admin area (Flask-Login and Flask-Admin)
     from admin_area import init_admin_area

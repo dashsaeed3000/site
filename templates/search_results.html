@@ -15,76 +15,139 @@
 {% endblock %}
 
 {% block content %}
-<!-- Search Results -->
-<section class="section-padding">
-    <div class="container">
+<!-- Search Results with Filters -->
+<section class="section-padding" style="direction: rtl;">
+    <div class="container"> 
+
+        {% if query %}
         <div class="row">
-            <div class="col-md-12 mb-4">
-                <h2 class="section-title">
-                    {% if query %}
-                        نتایج جستجو برای: <span>"{{ query }}"</span>
-                    {% else %}
-                        <span>جستجو</span>
-                    {% endif %}
-                </h2>
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3 col-md-4 mb-30">
+                <div style="background: #fff; border: 1px solid #e6e6e6; border-radius: 8px; padding: 20px;">
+                    <h5 style="font-family: 'Vazir'; margin-bottom: 20px; color: #001f3f; font-weight: bold;">جستجوی پیشرفته</h5>
+
+                    <form method="GET" action="{{ url_for('main.search') }}" style="direction: rtl;">
+                        <input type="hidden" name="q" value="{{ query }}">
+
+                        <!-- Category Filter -->
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">دسته‌بندی</label>
+                            <select name="category" style="width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir';">
+                                <option value="">تمام دسته‌ها</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if category_id == cat.id %}selected{% endif %}>{{ cat.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">محدوده قیمت</label>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: #6c757d;">قیمت کمینه (تومان)</label>
+                                <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir';" min="0">
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 12px; color: #6c757d;">قیمت بیشینه (تومان)</label>
+                                <input type="number" name="max_price" value="{{ max_price }}" placeholder="{{ max_price_db }}" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir';" min="0">
+                            </div>
+
+                            {% if min_price_db and max_price_db %}
+                            <small style="color: #6c757d; display: block;">
+                                دامنه: {{ "{:,}".format(min_price_db) }} - {{ "{:,}".format(max_price_db) }} تومان
+                            </small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Sorting -->
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: bold; color: #495057;">مرتب‌سازی</label>
+                            <select name="sort" style="width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; font-family: 'Vazir';">
+                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>جدیدترین</option>
+                                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>قیمت: کم به زیاد</option>
+                                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>قیمت: زیاد به کم</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <button type="submit" style="width: 100%; padding: 12px; background: #b19777; color: #fff; border: none; border-radius: 4px; font-family: 'Vazir'; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+                            اعمال فیلتر
+                        </button>
+
+                        {% if category_id or min_price or max_price or sort_by != 'newest' %}
+                        <a href="{{ url_for('main.search', q=query) }}" style="display: block; padding: 10px; text-align: center; background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; font-family: 'Vazir';">
+                            حذف فیلترها
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9 col-md-8">
+                {% if products and products|length > 0 %}
+                    <div style="margin-bottom: 20px; color: #6c757d;">
+                        تعداد نتایج: <strong>{{ products|length }}</strong>
+                    </div>
+
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-lg-4 col-md-6 mb-30">
+                            <div class="position-re o-hidden" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; height: 100%; display: flex; flex-direction: column;">
+                                <a href="{{ url_for('main.product_detail', slug=product.Slug) }}" style="text-decoration: none; color: inherit; flex: 1; display: flex; flex-direction: column;">
+                                    <div style="width: 100%; height: 250px; overflow: hidden; background: #f8f9fa;">
+                                        <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
+                                             alt="{{ product.Title }}"
+                                             style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="con" style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                                        {% if product.category %}
+                                        <h6 style="margin: 0 0 8px 0; color: #b19777; font-size: 14px;">
+                                            <a href="{{ url_for('main.category', slug=product.category.Slug) }}" style="color: #b19777; text-decoration: none;">
+                                                {{ product.category.Title }}
+                                            </a>
+                                        </h6>
+                                        {% endif %}
+                                        <h5 style="margin: 0 0 10px 0; color: #001f3f; font-weight: bold; font-family: 'Vazir';">
+                                            <a href="{{ url_for('main.product_detail', slug=product.Slug) }}" style="color: #001f3f; text-decoration: none;">
+                                                {{ product.Title }}
+                                            </a>
+                                        </h5>
+                                        {% if product.Price %}
+                                        <p class="product-price" style="color: #b19777; font-weight: bold; margin: 10px 0 0 0; font-size: 16px;">
+                                            {{ "{:,.0f}".format(product.Price|float) }} تومان
+                                        </p>
+                                        {% endif %}
+                                        <div class="line" style="margin-top: 10px;"></div>
+                                        <a href="{{ url_for('main.product_detail', slug=product.Slug) }}" style="text-align: right; display: block; margin-top: 10px; color: #b19777;"><i class="ti-arrow-left"></i></a>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 8px;">
+                    <i class="ti-search" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px; display: block;"></i>
+                    <h3 style="font-family: 'Vazir'; color: #6c757d; margin-bottom: 15px;">نتیجه‌ای یافت نشد</h3>
+                    <p style="color: #6c757d;">متأسفانه محصولی با معیارهای جستجو یافت نشد.</p>
+                    <p style="color: #6c757d; margin-top: 10px;">لطفاً فیلترها را تغییر دهید یا از عبارت دیگری جستجو کنید.</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3" style="display: inline-block; background: #b19777; border: none; padding: 10px 30px; border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Vazir';">
+                        بازگشت به صفحه اصلی
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
-        
-        {% if query %}
-            {% if products and products|length > 0 %}
-            <div class="row">
-                {% for product in products %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="product-card" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; height: 100%;">
-                        <a href="{{ url_for('main.product_detail', slug=product.Slug) }}" style="text-decoration: none; color: inherit;">
-                            <div class="product-image" style="width: 100%; height: 250px; overflow: hidden; background: #f8f9fa;">
-                                <img src="{% if product.MainImageUrl %}{{ product.MainImageUrl }}{% else %}{{ url_for('static', filename='img/default-product.jpg') }}{% endif %}" 
-                                     alt="{{ product.Title }}"
-                                     style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div class="product-info" style="padding: 20px;">
-                                {% if product.category %}
-                                <p style="color: #6c757d; font-size: 14px; margin-bottom: 8px;">{{ product.category.Title }}</p>
-                                {% endif %}
-                                <h4 style="font-family: 'Vazir'; font-size: 20px; font-weight: 400; color: #001f3f; margin-bottom: 10px;">
-                                    {{ product.Title }}
-                                </h4>
-                                {% if product.ShortDescription %}
-                                <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
-                                    {{ product.ShortDescription[:100] }}{% if product.ShortDescription|length > 100 %}...{% endif %}
-                                </p>
-                                {% endif %}
-                                {% if product.Price %}
-                                <p style="color: #b19777; font-weight: bold; font-size: 18px; margin: 0;">
-                                    {{ "{:,.0f}".format(product.Price|float) }} تومان
-                                </p>
-                                {% endif %}
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <div style="padding: 60px 20px;">
-                        <i class="ti-search" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px;"></i>
-                        <h3 style="font-family: 'Vazir'; color: #6c757d; margin-bottom: 15px;">نتیجه‌ای یافت نشد</h3>
-                        <p style="color: #6c757d;">متأسفانه محصولی با عبارت "{{ query }}" یافت نشد.</p>
-                        <p style="color: #6c757d; margin-top: 10px;">لطفاً عبارت جستجوی دیگری را امتحان کنید.</p>
-                        <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3" style="background: #b19777; border: none; padding: 10px 30px; border-radius: 25px;">
-                            بازگشت به صفحه اصلی
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         {% else %}
         <div class="row">
             <div class="col-md-12 text-center">
                 <div style="padding: 60px 20px;">
-                    <i class="ti-search" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px;"></i>
+                    <i class="ti-search" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px; display: block;"></i>
                     <h3 style="font-family: 'Vazir'; color: #6c757d; margin-bottom: 15px;">لطفاً عبارت جستجو را وارد کنید</h3>
                     <p style="color: #6c757d;">برای جستجوی محصولات، از فرم جستجو در نوار بالای صفحه استفاده کنید.</p>
                 </div>
@@ -97,9 +160,12 @@
 
 {% block extra_css %}
 <style>
-    .product-card:hover {
+    .position-re:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    .section-title span {
+        color: #b19777;
     }
 </style>
 {% endblock %}
