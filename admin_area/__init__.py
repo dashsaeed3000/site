@@ -16,6 +16,7 @@ from .admin_views import (
     SiteContentAdminView,
     BlogAdminView,
     BlogCategoryAdminView,
+        UserAdminView,
 )
 
 
@@ -47,6 +48,30 @@ def init_admin_area(app: Flask):
     from app.utils.persian_date import to_persian_date
     app.jinja_env.filters['persian_date'] = to_persian_date
 
+    # Simple UI translations for Flask-Admin strings used in templates.
+    # This is a lightweight fallback mapping (no Flask-Babel required).
+    def _translate(s):
+        mapping = {
+            'Create': 'ایجاد',
+            'Edit': 'ویرایش',
+            'Delete': 'حذف',
+            'View': 'نمایش',
+            'Actions': 'عملیات',
+            'Search': 'جستجو',
+            'Save': 'ذخیره',
+            'Cancel': 'انصراف',
+            'Are you sure you want to delete this record?': 'آیا مطمئن هستید که می‌خواهید این رکورد را حذف کنید؟',
+            'Yes': 'بله',
+            'No': 'خیر',
+            'Create new': 'ایجاد جدید',
+        }
+        return mapping.get(s, s)
+
+    # Expose common gettext aliases used by Flask-Admin templates
+    app.jinja_env.globals['_'] = _translate
+    app.jinja_env.globals['gettext'] = _translate
+    app.jinja_env.globals['ngettext'] = lambda s, p, n: _translate(s)
+
     # NOTE: Sash assets are served from templates/sash/assets for legacy reasons.
     # For production, move all Sash assets to static/sash/assets and update the blueprint route if needed.
 
@@ -54,7 +79,7 @@ def init_admin_area(app: Flask):
     admin.init_app(app, index_view=AdminIndexView(name='Home', url='/admin'))
 
     # Register admin views
-    from .models import Post
+    from .models import Post, User
     from app.models.models import Categories, Products, BlogCategories, Blogs, SiteContent
     from app.repositories.db import get_scoped_session
 
@@ -78,6 +103,13 @@ def init_admin_area(app: Flask):
 
     # Sample Post model from admin_area (you can remove this if not needed)
     admin.add_view(PostModelView(Post, Session, name='Posts', endpoint='posts'))
+
+    # Register admin view for local admin users table so `/admin/users/` works
+    admin.add_view(UserAdminView(User, Session, name='کاربران', endpoint='users'))
+
+    # Categories tree view (custom page inside Flask-Admin)
+    from .admin_views import CategoriesTreeView
+    admin.add_view(CategoriesTreeView(name='درخت دسته‌بندی‌ها', endpoint='categories_tree'))
 
     # Register blueprint
     app.register_blueprint(admin_area_bp, url_prefix='/admin')

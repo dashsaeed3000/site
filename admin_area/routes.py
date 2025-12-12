@@ -165,3 +165,6 @@ def api_summary_stats():
         return jsonify({'error': 'internal_server_error', 'message': str(e)}), 500
     finally:
         db.close()
+
+
+# categories tree is provided as a Flask-Admin view (CategoriesTreeView)

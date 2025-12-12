@@ -68,45 +68,45 @@ class Categories(Base):
 class Products(Base):
     __tablename__ = 'Products'
     Id = Column(String(36), primary_key=True, default=new_guid_str)
-    CategoryId = Column(String(36), ForeignKey('Categories.Id'), nullable=True)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    CategoryId = Column(String(36), ForeignKey('Categories.Id'), nullable=True, info={"label_fa": "دسته"})
+    SKU = Column(String(100), nullable=True, unique=True, info={"label_fa": "کد محصول (SKU)"})
 
-    SKU = Column(String(100), nullable=True, unique=True)
+    Title = Column(String(255), nullable=False, info={"label_fa": "عنوان"})
+    TitleEn = Column(String(255), nullable=True, info={"label_fa": "عنوان (انگلیسی)"})
+    TitleAr = Column(String(255), nullable=True, info={"label_fa": "عنوان (عربی)"})
 
-    Title = Column(String(255), nullable=False)
-    TitleEn = Column(String(255), nullable=True)
-    TitleAr = Column(String(255), nullable=True)
+    Slug = Column(String(255), nullable=False, info={"label_fa": "نامک"})
+    SlugEn = Column(String(255), nullable=True, info={"label_fa": "نامک (انگلیسی)"})
+    SlugAr = Column(String(255), nullable=True, info={"label_fa": "نامک (عربی)"})
 
-    Slug = Column(String(255), nullable=False)
-    SlugEn = Column(String(255), nullable=True)
-    SlugAr = Column(String(255), nullable=True)
+    ShortDescription = Column(String(1000), nullable=True, info={"label_fa": "توضیح کوتاه"})
+    ShortDescriptionEn = Column(String(1000), nullable=True, info={"label_fa": "توضیح کوتاه (انگلیسی)"})
+    ShortDescriptionAr = Column(String(1000), nullable=True, info={"label_fa": "توضیح کوتاه (عربی)"})
 
-    ShortDescription = Column(String(1000), nullable=True)
-    ShortDescriptionEn = Column(String(1000), nullable=True)
-    ShortDescriptionAr = Column(String(1000), nullable=True)
+    Description = Column(Text, nullable=True, info={"label_fa": "توضیحات"})
+    DescriptionEn = Column(Text, nullable=True, info={"label_fa": "توضیحات (انگلیسی)"})
+    DescriptionAr = Column(Text, nullable=True, info={"label_fa": "توضیحات (عربی)"})
 
-    Description = Column(Text, nullable=True)
-    DescriptionEn = Column(Text, nullable=True)
-    DescriptionAr = Column(Text, nullable=True)
+    Price = Column(Numeric(18, 2), nullable=False, info={"label_fa": "قیمت"})
+    Stock = Column(Numeric(18, 2), nullable=False, default=0, info={"label_fa": "موجودی"})
 
-    Price = Column(Numeric(18, 2), nullable=False)
-    Stock = Column(Numeric(18, 2), nullable=False, default=0)
+    IsActive = Column(Boolean, nullable=False, default=True, info={"label_fa": "فعال"})
+    IsFeatured = Column(Boolean, nullable=False, default=False, info={"label_fa": "ویژه"})
 
-    IsActive = Column(Boolean, nullable=False, default=True)
-    IsFeatured = Column(Boolean, nullable=False, default=False)
-
-    MainImageUrl = Column(String(500), nullable=True)
-    MetaTitle = Column(String(255), nullable=True)
-    MetaDescription = Column(String(500), nullable=True)
-    MetaKeywords = Column(String(500), nullable=True)
+    MainImageUrl = Column(String(500), nullable=True, info={"label_fa": "تصویر اصلی"})
+    MetaTitle = Column(String(255), nullable=True, info={"label_fa": "عنوان متا"})
+    MetaDescription = Column(String(500), nullable=True, info={"label_fa": "توضیحات متا"})
+    MetaKeywords = Column(String(500), nullable=True, info={"label_fa": "کلمات کلیدی متا"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     category = relationship('Categories', backref='products')
 
@@ -120,113 +120,113 @@ class Products(Base):
 
 class ProductImages(Base):
     __tablename__ = 'ProductImages'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
-    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, info={"label_fa": "محصول"})
 
-    ImageUrl = Column(String(500), nullable=False)
-    AltText = Column(String(255), nullable=True)
-    AltTextEn = Column(String(255), nullable=True)
-    AltTextAr = Column(String(255), nullable=True)
+    ImageUrl = Column(String(500), nullable=False, info={"label_fa": "آدرس تصویر"})
+    AltText = Column(String(255), nullable=True, info={"label_fa": "متن جایگزین"})
+    AltTextEn = Column(String(255), nullable=True, info={"label_fa": "متن جایگزین (انگلیسی)"})
+    AltTextAr = Column(String(255), nullable=True, info={"label_fa": "متن جایگزین (عربی)"})
 
-    IsPrimary = Column(Boolean, nullable=False, default=False)
-    SortOrder = Column(Integer, nullable=False, default=0)
+    IsPrimary = Column(Boolean, nullable=False, default=False, info={"label_fa": "تصویر اصلی"})
+    SortOrder = Column(Integer, nullable=False, default=0, info={"label_fa": "ترتیب نمایش"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     product = relationship('Products', backref='images')
 
 
 class BlogCategories(Base):
     __tablename__ = 'BlogCategories'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
 
-    Title = Column(String(255), nullable=False)
-    TitleEn = Column(String(255), nullable=True)
-    TitleAr = Column(String(255), nullable=True)
+    Title = Column(String(255), nullable=False, info={"label_fa": "عنوان"})
+    TitleEn = Column(String(255), nullable=True, info={"label_fa": "عنوان (انگلیسی)"})
+    TitleAr = Column(String(255), nullable=True, info={"label_fa": "عنوان (عربی)"})
 
-    Slug = Column(String(255), nullable=False)
-    SlugEn = Column(String(255), nullable=True)
-    SlugAr = Column(String(255), nullable=True)
+    Slug = Column(String(255), nullable=False, info={"label_fa": "نامک"})
+    SlugEn = Column(String(255), nullable=True, info={"label_fa": "نامک (انگلیسی)"})
+    SlugAr = Column(String(255), nullable=True, info={"label_fa": "نامک (عربی)"})
 
-    Description = Column(Text, nullable=True)
-    IsActive = Column(Boolean, nullable=False, default=True)
+    Description = Column(Text, nullable=True, info={"label_fa": "توضیحات"})
+    IsActive = Column(Boolean, nullable=False, default=True, info={"label_fa": "فعال"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
 
 class Blogs(Base):
     __tablename__ = 'Blogs'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
-    BlogCategoryId = Column(String(36), ForeignKey('BlogCategories.Id'), nullable=True)
-    AuthorId = Column(String(36), nullable=True)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    BlogCategoryId = Column(String(36), ForeignKey('BlogCategories.Id'), nullable=True, info={"label_fa": "دسته‌بندی"})
+    AuthorId = Column(String(36), nullable=True, info={"label_fa": "نویسنده"})
 
-    Title = Column(String(255), nullable=False)
-    TitleEn = Column(String(255), nullable=True)
-    TitleAr = Column(String(255), nullable=True)
+    Title = Column(String(255), nullable=False, info={"label_fa": "عنوان"})
+    TitleEn = Column(String(255), nullable=True, info={"label_fa": "عنوان (انگلیسی)"})
+    TitleAr = Column(String(255), nullable=True, info={"label_fa": "عنوان (عربی)"})
 
-    Slug = Column(String(255), nullable=False)
-    SlugEn = Column(String(255), nullable=True)
-    SlugAr = Column(String(255), nullable=True)
+    Slug = Column(String(255), nullable=False, info={"label_fa": "نامک"})
+    SlugEn = Column(String(255), nullable=True, info={"label_fa": "نامک (انگلیسی)"})
+    SlugAr = Column(String(255), nullable=True, info={"label_fa": "نامک (عربی)"})
 
-    Excerpt = Column(String(1000), nullable=True)
-    ExcerptEn = Column(String(1000), nullable=True)
-    ExcerptAr = Column(String(1000), nullable=True)
+    Excerpt = Column(String(1000), nullable=True, info={"label_fa": "خلاصه"})
+    ExcerptEn = Column(String(1000), nullable=True, info={"label_fa": "خلاصه (انگلیسی)"})
+    ExcerptAr = Column(String(1000), nullable=True, info={"label_fa": "خلاصه (عربی)"})
 
-    Body = Column(Text, nullable=True)
-    BodyEn = Column(Text, nullable=True)
-    BodyAr = Column(Text, nullable=True)
+    Body = Column(Text, nullable=True, info={"label_fa": "متن"})
+    BodyEn = Column(Text, nullable=True, info={"label_fa": "متن (انگلیسی)"})
+    BodyAr = Column(Text, nullable=True, info={"label_fa": "متن (عربی)"})
 
-    FeaturedImageUrl = Column(String(500), nullable=True)
-    IsPublished = Column(Boolean, nullable=False, default=False)
-    PublishedAt = Column(DateTime, nullable=True)
-    Views = Column(Integer, nullable=False, default=0)
+    FeaturedImageUrl = Column(String(500), nullable=True, info={"label_fa": "تصویر شاخص"})
+    IsPublished = Column(Boolean, nullable=False, default=False, info={"label_fa": "منتشر شده"})
+    PublishedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ انتشار"})
+    Views = Column(Integer, nullable=False, default=0, info={"label_fa": "بازدید"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     category = relationship('BlogCategories', backref='blogs')
 
 
 class BlogComments(Base):
     __tablename__ = 'BlogComments'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
-    BlogId = Column(String(36), ForeignKey('Blogs.Id'), nullable=False)
-    ParentId = Column(String(36), ForeignKey('BlogComments.Id'), nullable=True)
-    UserId = Column(String(36), nullable=True)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    BlogId = Column(String(36), ForeignKey('Blogs.Id'), nullable=False, info={"label_fa": "مقاله"})
+    ParentId = Column(String(36), ForeignKey('BlogComments.Id'), nullable=True, info={"label_fa": "والد"})
+    UserId = Column(String(36), nullable=True, info={"label_fa": "کاربر"})
 
-    Body = Column(Text, nullable=False)
-    BodyEn = Column(Text, nullable=True)
-    BodyAr = Column(Text, nullable=True)
-    IsApproved = Column(Boolean, nullable=False, default=False)
+    Body = Column(Text, nullable=False, info={"label_fa": "متن"})
+    BodyEn = Column(Text, nullable=True, info={"label_fa": "متن (انگلیسی)"})
+    BodyAr = Column(Text, nullable=True, info={"label_fa": "متن (عربی)"})
+    IsApproved = Column(Boolean, nullable=False, default=False, info={"label_fa": "تایید شده"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     blog = relationship('Blogs', backref='comments')
     parent = relationship('BlogComments', remote_side=[Id], backref='replies')
@@ -234,25 +234,25 @@ class BlogComments(Base):
 
 class ProductComments(Base):
     __tablename__ = 'ProductComments'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
-    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False)
-    ParentId = Column(String(36), ForeignKey('ProductComments.Id'), nullable=True)
-    UserId = Column(String(36), nullable=True)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, info={"label_fa": "محصول"})
+    ParentId = Column(String(36), ForeignKey('ProductComments.Id'), nullable=True, info={"label_fa": "والد"})
+    UserId = Column(String(36), nullable=True, info={"label_fa": "کاربر"})
 
-    Body = Column(Text, nullable=False)
-    BodyEn = Column(Text, nullable=True)
-    BodyAr = Column(Text, nullable=True)
-    Rating = Column(Integer, nullable=True)
-    IsApproved = Column(Boolean, nullable=False, default=False)
+    Body = Column(Text, nullable=False, info={"label_fa": "متن"})
+    BodyEn = Column(Text, nullable=True, info={"label_fa": "متن (انگلیسی)"})
+    BodyAr = Column(Text, nullable=True, info={"label_fa": "متن (عربی)"})
+    Rating = Column(Integer, nullable=True, info={"label_fa": "رتبه‌بندی"})
+    IsApproved = Column(Boolean, nullable=False, default=False, info={"label_fa": "تایید شده"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     product = relationship('Products', backref='comments')
     parent = relationship('ProductComments', remote_side=[Id], backref='replies')
@@ -260,16 +260,16 @@ class ProductComments(Base):
 
 class Likes(Base):
     __tablename__ = 'Likes'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
-    UserId = Column(String(36), nullable=False)
-    TargetType = Column(String(20), nullable=False)  # 'Product' | 'Blog'
-    TargetId = Column(String(36), nullable=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    UserId = Column(String(36), nullable=False, info={"label_fa": "کاربر"})
+    TargetType = Column(String(20), nullable=False, info={"label_fa": "نوع هدف"})  # 'Product' | 'Blog'
+    TargetId = Column(String(36), nullable=False, info={"label_fa": "شناسه هدف"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
 
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
 
     __table_args__ = (
         UniqueConstraint('UserId', 'TargetType', 'TargetId', name='UQ_Likes_User_Target'),
@@ -326,41 +326,41 @@ class SiteContent(Base):
 class Orders(Base):
     """Order model for storing customer orders"""
     __tablename__ = 'Orders'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
     
     # User association (can be null for guest orders, but typically set after account creation)
-    UserId = Column(Integer, ForeignKey('users.id'), nullable=True, index=True)
+    UserId = Column(Integer, ForeignKey('users.id'), nullable=True, index=True, info={"label_fa": "کاربر"})
     
     # Order details
-    OrderNumber = Column(String(50), unique=True, nullable=False, index=True)
-    Status = Column(String(20), nullable=False, default='pending')  # pending, processing, completed, cancelled
-    PaymentStatus = Column(String(20), nullable=False, default='pending')  # pending, paid, failed, refunded
-    PaymentMethod = Column(String(50), nullable=True)
-    PaymentTransactionId = Column(String(255), nullable=True)
+    OrderNumber = Column(String(50), unique=True, nullable=False, index=True, info={"label_fa": "شماره سفارش"})
+    Status = Column(String(20), nullable=False, default='pending', info={"label_fa": "وضعیت"})  # pending, processing, completed, cancelled
+    PaymentStatus = Column(String(20), nullable=False, default='pending', info={"label_fa": "وضعیت پرداخت"})  # pending, paid, failed, refunded
+    PaymentMethod = Column(String(50), nullable=True, info={"label_fa": "روش پرداخت"})
+    PaymentTransactionId = Column(String(255), nullable=True, info={"label_fa": "شناسه تراکنش"})
     
     # Customer information (stored even if user account exists for historical accuracy)
-    CustomerName = Column(String(255), nullable=False)
-    CustomerPhone = Column(String(80), nullable=False, index=True)
-    CustomerEmail = Column(String(120), nullable=True)
-    ShippingAddress = Column(Text, nullable=True)
+    CustomerName = Column(String(255), nullable=False, info={"label_fa": "نام مشتری"})
+    CustomerPhone = Column(String(80), nullable=False, index=True, info={"label_fa": "تلفن مشتری"})
+    CustomerEmail = Column(String(120), nullable=True, info={"label_fa": "ایمیل مشتری"})
+    ShippingAddress = Column(Text, nullable=True, info={"label_fa": "آدرس ارسال"})
     
     # Financial information
-    SubTotal = Column(Numeric(18, 2), nullable=False)
-    TaxAmount = Column(Numeric(18, 2), nullable=False, default=0)
-    ShippingCost = Column(Numeric(18, 2), nullable=False, default=0)
-    TotalAmount = Column(Numeric(18, 2), nullable=False)
+    SubTotal = Column(Numeric(18, 2), nullable=False, info={"label_fa": "جمع جزء"})
+    TaxAmount = Column(Numeric(18, 2), nullable=False, default=0, info={"label_fa": "مالیات"})
+    ShippingCost = Column(Numeric(18, 2), nullable=False, default=0, info={"label_fa": "هزینه ارسال"})
+    TotalAmount = Column(Numeric(18, 2), nullable=False, info={"label_fa": "مبلغ کل"})
     
     # Order notes
-    Notes = Column(Text, nullable=True)
+    Notes = Column(Text, nullable=True, info={"label_fa": "یادداشت"})
     
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
     
     # Relationships
     items = relationship('OrderItems', backref='order', cascade='all, delete-orphan')
@@ -372,29 +372,29 @@ class Orders(Base):
 class OrderItems(Base):
     """Order items model for storing individual products in an order"""
     __tablename__ = 'OrderItems'
-    Id = Column(String(36), primary_key=True, default=new_guid_str)
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
     
-    OrderId = Column(String(36), ForeignKey('Orders.Id'), nullable=False, index=True)
-    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, index=True)
+    OrderId = Column(String(36), ForeignKey('Orders.Id'), nullable=False, index=True, info={"label_fa": "سفارش"})
+    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, index=True, info={"label_fa": "محصول"})
     
     # Product snapshot (stored at time of order for historical accuracy)
-    ProductTitle = Column(String(255), nullable=False)
-    ProductSKU = Column(String(100), nullable=True)
-    ProductPrice = Column(Numeric(18, 2), nullable=False)
+    ProductTitle = Column(String(255), nullable=False, info={"label_fa": "عنوان محصول"})
+    ProductSKU = Column(String(100), nullable=True, info={"label_fa": "کد محصول (SKU)"})
+    ProductPrice = Column(Numeric(18, 2), nullable=False, info={"label_fa": "قیمت محصول"})
     
     # Order item details
-    Quantity = Column(Numeric(18, 2), nullable=False)
-    UnitPrice = Column(Numeric(18, 2), nullable=False)
-    TotalPrice = Column(Numeric(18, 2), nullable=False)
+    Quantity = Column(Numeric(18, 2), nullable=False, info={"label_fa": "تعداد"})
+    UnitPrice = Column(Numeric(18, 2), nullable=False, info={"label_fa": "قیمت واحد"})
+    TotalPrice = Column(Numeric(18, 2), nullable=False, info={"label_fa": "قیمت کل"})
     
     # Audit + soft delete
-    IsDeleted = Column(Boolean, nullable=False, default=False)
-    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    CreatedBy = Column(String(36), nullable=True)
-    UpdatedAt = Column(DateTime, nullable=True)
-    UpdatedBy = Column(String(36), nullable=True)
-    DeletedAt = Column(DateTime, nullable=True)
-    DeletedBy = Column(String(36), nullable=True)
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
     
     # Relationships
     product = relationship('Products', backref='order_items')

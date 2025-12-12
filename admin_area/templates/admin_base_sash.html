@@ -142,36 +142,55 @@
 					</li>
 					{% block main_menu %}
 						{% set menu_items = admin_view.admin.menu() %}
+						{% set seen = [] %}
+						{# Render a deduplicated, icon-mapped menu. Adjust icon mapping below if needed. #}
 						{% for item in menu_items %}
-							{% if item.is_category() %}
-								<li class="nav-item with-sub">
-									<a class="nav-link" href="javascript:void(0);">
-										<i class="fe fe-folder sidemenu-icon"></i>
-										<span class="sidemenu-label">{{ item.name }}</span>
-									</a>
-									<ul class="sub-menu">
-										{% for child in item.get_children() %}
-											{% if child.is_accessible() %}
-												<li class="nav-item">
-													<a class="nav-link" href="{{ child.get_url() }}">
-														<i class="fe fe-circle sidemenu-icon"></i>
-														<span class="sidemenu-label">{{ child.name }}</span>
-													</a>
-												</li>
-											{% endif %}
-										{% endfor %}
-									</ul>
-								</li>
-							{% elif item.is_accessible() %}
-								<li class="nav-item">
-									<a class="nav-link" href="{{ item.get_url() }}">
-										<i class="fe fe-file sidemenu-icon"></i>
-										<span class="sidemenu-label">{{ item.name }}</span>
-									</a>
-								</li>
+							{% if item.name not in seen %}
+								{% set _ = seen.append(item.name) %}
+								{% if item.is_category() %}
+									<li class="nav-item with-sub">
+										<a class="nav-link" href="javascript:void(0);">
+											<i class="fe fe-folder sidemenu-icon"></i>
+											<span class="sidemenu-label">{{ item.name }}</span>
+										</a>
+										<ul class="sub-menu">
+											{% for child in item.get_children() %}
+												{% if child.is_accessible() %}
+													<li class="nav-item">
+														<a class="nav-link" href="{{ child.get_url() }}">
+															<i class="fe fe-circle sidemenu-icon"></i>
+															<span class="sidemenu-label">{{ child.name }}</span>
+														</a>
+													</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</li>
+								{% elif item.is_accessible() %}
+									{# Choose an icon by common view name matches; extend as needed. #}
+									{% set icon = 'fe fe-file' %}
+									{% if item.name in ['دسته‌بندی‌ها', 'Categories'] %}
+										{% set icon = 'fe fe-folder' %}
+									{% elif item.name in ['محصولات', 'Products'] %}
+										{% set icon = 'fe fe-box' %}
+									{% elif item.name in ['مقالات', 'Posts', 'Articles'] %}
+										{% set icon = 'fe fe-file-text' %}
+									{% elif item.name in ['محتوای سایت', 'Site Content'] %}
+										{% set icon = 'fe fe-layout' %} 
+									{% endif %}
+									<li class="nav-item">
+										<a class="nav-link" href="{{ item.get_url() }}">
+											<i class="{{ icon }} sidemenu-icon"></i>
+											<span class="sidemenu-label">{{ item.name }}</span>
+										</a>
+									</li>
+								{% endif %}
 							{% endif %}
 						{% endfor %}
 					{% endblock %}
+
+
+
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('main.index') }}"><i class="fe fe-globe sidemenu-icon"></i><span class="sidemenu-label">مشاهده سایت</span></a>
 					</li>

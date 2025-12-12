@@ -1,0 +1,98 @@
+{% extends 'admin_base_sash.html' %}
+
+{% block title %}درخت دسته‌بندی‌ها - پنل مدیریت{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="header">
+        <h2>درخت دسته‌بندی‌ها</h2>
+      </div>
+      <div class="body">
+        <p>نمایش درختی تمام دسته‌بندی‌های محصولات.</p>
+        <div id="category-tree" style="padding:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cat-node { cursor: pointer; padding: 4px 8px; display: block; }
+  .cat-children { margin-right: 16px; border-right: 1px dashed #eee; padding-right: 8px; list-style:none; }
+  .caret { margin-left: 6px; font-weight: bold; }
+</style>
+
+<script>
+// categories passed from server
+const categoriesData = {{ categories|tojson|safe }};
+
+// Build map id -> node
+const nodesById = {};
+categoriesData.forEach(c => {
+  nodesById[c.id] = Object.assign({}, c, { children: [] });
+});
+
+// Attach children to parents
+const roots = [];
+categoriesData.forEach(c => {
+  if (c.parent && nodesById[c.parent]) {
+    nodesById[c.parent].children.push(nodesById[c.id]);
+  } else {
+    roots.push(nodesById[c.id]);
+  }
+});
+
+function createNodeElement(node) {
+  const li = document.createElement('li');
+  const label = document.createElement('span');
+  label.className = 'cat-node';
+  label.textContent = node.title || '(بدون عنوان)';
+
+  if (node.children && node.children.length > 0) {
+    const caret = document.createElement('span');
+    caret.className = 'caret';
+    caret.textContent = '▾';
+    label.prepend(caret);
+
+    const ul = document.createElement('ul');
+    ul.className = 'cat-children';
+    ul.style.display = 'block';
+    node.children.forEach(child => {
+      ul.appendChild(createNodeElement(child));
+    });
+
+    label.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (ul.style.display === 'none') {
+        ul.style.display = 'block';
+        caret.textContent = '▾';
+      } else {
+        ul.style.display = 'none';
+        caret.textContent = '▸';
+      }
+    });
+
+    li.appendChild(label);
+    li.appendChild(ul);
+  } else {
+    li.appendChild(label);
+  }
+
+  return li;
+}
+
+function renderTree(containerId, roots) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  const ul = document.createElement('ul');
+  roots.forEach(r => ul.appendChild(createNodeElement(r)));
+  container.appendChild(ul);
+}
+
+// Initialize
+renderTree('category-tree', roots);
+</script>
+
+{% endblock %}

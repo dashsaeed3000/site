@@ -5,12 +5,15 @@ Custom views for Flask-Admin
 from flask import redirect, url_for, flash
 import logging
 from flask_login import current_user
-from flask_admin import AdminIndexView, expose
+from flask_admin import AdminIndexView, expose, BaseView
+from markupsafe import Markup
+from flask import url_for
 from flask_admin.contrib.sqla import ModelView
 from datetime import datetime, date
 from app.utils.upload import save_uploaded_file, delete_uploaded_file
 from app.utils.persian_date import to_persian_date
 from admin_area.form_fields import ImageUploadField, CKEditorField
+from wtforms import PasswordField
 
 
 class AdminIndexView(AdminIndexView):
@@ -275,6 +278,15 @@ class LocalizedModelView(SecureModelView):
             merged = {**labels, **existing}
             self.column_labels = merged
 
+        # Map labels into form_args so Flask-Admin forms display the localized label
+        # form_args structure: { 'field_name': {'label': '...'} }
+        if labels:
+            existing_form_args = getattr(self, 'form_args', {}) or {}
+            for col_name, label in labels.items():
+                if col_name not in existing_form_args:
+                    existing_form_args[col_name] = {'label': label}
+            self.form_args = existing_form_args
+
         # Set date formatters
         if date_formatters:
             existing_formatters = getattr(self, "column_formatters", {}) or {}
@@ -349,8 +361,9 @@ class CategoryAdminView(LocalizedModelView):
     column_filters = ('IsActive',)
 
     # Only show business fields in the form; system fields are filled automatically
+    # Use the `parent` relationship in the form so we can enable AJAX search
     form_columns = (
-        'ParentId',
+        'parent',
         'Title',
         'TitleEn',
         'TitleAr',
@@ -375,6 +388,14 @@ class CategoryAdminView(LocalizedModelView):
         'children',
         'products',
     )
+
+    # Enable AJAX lookup for parent relationship so the dropdown supports search
+    form_ajax_refs = {
+        'parent': {
+            'fields': ('Title',),
+            'page_size': 10
+        }
+    }
 
 
 class BlogCategoryAdminView(LocalizedModelView):
@@ -416,6 +437,7 @@ class ProductAdminView(LocalizedModelView):
         'Id',
         'Title',
         'Slug',
+        'MainImageUrl',
         'category',
         'Price',
         'Stock',
@@ -482,6 +504,72 @@ class ProductAdminView(LocalizedModelView):
         )
         
         return form_class
+
+    def __init__(self, model, session, **kwargs):
+        # Configure image column and formatter so list view shows a thumbnail
+        super(ProductAdminView, self).__init__(model, session, **kwargs)
+
+        # Ensure MainImageUrl is shown in column_list (insert after 'Slug' if present)
+        existing = list(getattr(self, 'column_list', ()))
+        if 'MainImageUrl' not in existing:
+            try:
+                idx = existing.index('Slug') + 1
+            except ValueError:
+                idx = 0
+            existing.insert(idx, 'MainImageUrl')
+            self.column_list = tuple(existing)
+
+        # Add formatter for MainImageUrl
+        existing_formatters = getattr(self, 'column_formatters', {}) or {}
+        existing_formatters.update({'MainImageUrl': self._main_image_formatter})
+        self.column_formatters = existing_formatters
+
+    def _main_image_formatter(self, view, context, model, name):
+        try:
+            url = getattr(model, 'MainImageUrl', None)
+
+            # If there's no MainImageUrl, try the related ProductImages (backref 'images')
+            if not url:
+                imgs = getattr(model, 'images', None) or []
+                img_obj = None
+                if imgs:
+                    # prefer explicit primary image
+                    for i in imgs:
+                        if getattr(i, 'IsPrimary', False):
+                            img_obj = i
+                            break
+                    # otherwise pick lowest SortOrder or first
+                    if not img_obj:
+                        try:
+                            imgs_sorted = sorted(imgs, key=lambda x: getattr(x, 'SortOrder', 0))
+                            img_obj = imgs_sorted[0] if imgs_sorted else imgs[0]
+                        except Exception:
+                            img_obj = imgs[0]
+
+                if img_obj is not None:
+                    url = getattr(img_obj, 'ImageUrl', None)
+
+            if not url:
+                return ''
+
+            # Normalize URL: if it's not absolute or rooted, treat as static file path
+            if not (url.startswith('http://') or url.startswith('https://') or url.startswith('/')):
+                try:
+                    url = url_for('static', filename=url)
+                except Exception:
+                    # fallback to original value
+                    pass
+
+            # Small forced-size thumbnail (click to open full image)
+            return Markup(
+                f'<a href="{url}" target="_blank" rel="noopener">'
+                f'<img src="{url}" '
+                f'style="width:60px;height:45px;max-width:60px;max-height:45px;object-fit:cover;display:block;border-radius:4px!important;" '
+                f'alt="image"/>'
+                f'</a>'
+            )
+        except Exception:
+            return ''
     
     def on_form_prefill(self, form, id):
         """Set current image URL for preview on edit"""
@@ -730,4 +818,79 @@ class BlogAdminView(LocalizedModelView):
         if model.FeaturedImageUrl:
             delete_uploaded_file(model.FeaturedImageUrl)
         super(BlogAdminView, self).on_model_delete(model)
+
+
+class UserAdminView(LocalizedModelView):
+    """Admin view for local admin users.
+
+    Hides `password_hash` from lists and forms. Provides a `password`
+    field on the form and calls `set_password` on create/update when a
+    password value is provided.
+    """
+
+    column_list = ('id', 'username', 'email', 'role', 'is_active', 'created_at')
+    column_searchable_list = ('username', 'email')
+    column_filters = ('role', 'is_active')
+
+    # Never expose the hash
+    column_exclude_list = ('password_hash',)
+    form_excluded_columns = ('password_hash', 'created_at', 'updated_at')
+
+    # Add a password field to the form (not stored directly)
+    form_extra_fields = {
+        'password': PasswordField(label='رمز عبور')
+    }
+
+    def scaffold_form(self):
+        form_class = super(UserAdminView, self).scaffold_form()
+        # Ensure password_hash isn't part of the form
+        if hasattr(form_class, 'password_hash'):
+            delattr(form_class, 'password_hash')
+        return form_class
+
+    def on_model_change(self, form, model, is_created):
+        # If a password was provided, hash it using model.set_password
+        try:
+            pw = getattr(form, 'password', None)
+            if pw and pw.data:
+                # Use model helper to hash (truncates to bcrypt limit)
+                model.set_password(pw.data)
+        except Exception:
+            # Avoid breaking save if hashing fails; log and continue
+            import logging
+            logging.getLogger(__name__).exception('Failed to set user password')
+
+        super(UserAdminView, self).on_model_change(form, model, is_created)
+
+    def on_model_create(self, model):
+        # Ensure IsActive default
+        if hasattr(model, 'is_active') and model.is_active is None:
+            model.is_active = True
+        super(UserAdminView, self).on_model_create(model)
+
+
+class CategoriesTreeView(BaseView):
+    """Simple admin view that renders a collapsible category tree inside the Sash admin layout."""
+
+    @expose('/')
+    def index(self):
+        from app.repositories.db import get_scoped_session
+        from app.models.models import Categories
+        Session = get_scoped_session()
+        db = Session()
+        try:
+            rows = db.query(Categories).filter(Categories.IsDeleted == False).order_by(Categories.SortOrder).all()
+            cats = []
+            for r in rows:
+                cats.append({
+                    'id': r.Id,
+                    'parent': r.ParentId,
+                    'title': r.Title or ''
+                })
+            return self.render('categories_tree.html', categories=cats)
+        finally:
+            db.close()
+
+    def is_accessible(self):
+        return current_user.is_authenticated and hasattr(current_user, 'is_admin') and current_user.is_admin()
 

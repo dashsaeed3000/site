@@ -20,14 +20,14 @@ class User(Base):
     """User model for authentication"""
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(80), unique=True, nullable=False, index=True)
-    email = Column(String(120), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    role = Column(String(20), nullable=False, default='user')
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = Column(Integer, primary_key=True, autoincrement=True, info={"label_fa": "شناسه"})
+    username = Column(String(80), unique=True, nullable=False, index=True, info={"label_fa": "نام کاربری"})
+    email = Column(String(120), unique=True, nullable=False, index=True, info={"label_fa": "ایمیل"})
+    password_hash = Column(String(255), nullable=False, info={"label_fa": "رمز عبور (hash)"})
+    role = Column(String(20), nullable=False, default='user', info={"label_fa": "نقش"})
+    is_active = Column(Boolean, default=True, nullable=False, info={"label_fa": "فعال"})
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, info={"label_fa": "تاریخ ایجاد"})
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, info={"label_fa": "تاریخ ویرایش"})
     
     def set_password(self, password: str):
         """Hash and set password using bcrypt directly"""
