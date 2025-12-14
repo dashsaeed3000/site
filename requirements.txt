@@ -11,3 +11,4 @@ requests
 python-dotenv
 gunicorn
 Pillow>=9.0.0
+cryptography>=40.0
