@@ -9,8 +9,12 @@ from PIL import Image
 from flask import current_app
 from app.config.settings import settings
 
-# Allowed image extensions
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+# Allowed upload extensions (images + common document/audio/video formats)
+ALLOWED_EXTENSIONS = {
+    'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt',
+    'mp4', 'mp3'
+}
 
 def allowed_file(filename):
     """Check if file extension is allowed"""

@@ -102,3 +102,48 @@ class CKEditorTextAreaWidget(TextArea):
 class CKEditorField(TextAreaField):
     """TextAreaField with CKEditor widget"""
     widget = CKEditorTextAreaWidget()
+
+
+class DocumentUploadField(FileField):
+    """
+    File upload field for documents. Shows current file link (if set)
+    and accepts configurable file types.
+    """
+    def __init__(self, label=None, validators=None, file_url_field=None, accept=None, **kwargs):
+        super(DocumentUploadField, self).__init__(label, validators, **kwargs)
+        self.file_url_field = file_url_field
+        self.current_url = None
+        self.accept = accept or '.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.mp4,.mp3'
+
+    def __call__(self, **kwargs):
+        kwargs.setdefault('id', self.id)
+        kwargs.setdefault('type', 'file')
+        kwargs.setdefault('accept', self.accept)
+
+        classes = kwargs.get('class', '').split() if 'class' in kwargs else []
+        classes.extend(['document-upload-field', 'form-control'])
+        kwargs['class'] = ' '.join(classes)
+
+        file_input = f'<input {html_params(name=self.name, **kwargs)}>'
+
+        preview_html = ''
+        if self.current_url:
+            # Display a link to the existing file
+            preview_html = f'''
+            <div class="document-preview" style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:4px; border:1px solid #dee2e6;">
+                <label style="display:block; margin-bottom:8px; font-weight:bold; color:#495057;">فایل فعلی:</label>
+                <a href="{self.current_url}" target="_blank" style="word-break:break-all;">{self.current_url}</a>
+                <p style="margin-top:8px; color:#6c757d; font-size:13px; margin-bottom:0;">برای تغییر فایل، یک فایل جدید انتخاب کنید.</p>
+            </div>
+            '''
+
+        help_text = f'''
+        <small class="form-text text-muted" style="margin-top:5px; display:block;">فرمت‌های مجاز: {self.accept} (حداکثر 50MB)</small>
+        '''
+
+        try:
+            from markupsafe import Markup
+        except Exception:
+            from flask import Markup
+
+        return Markup(f'<div class="document-upload-wrapper">{file_input}{preview_html}{help_text}</div>')

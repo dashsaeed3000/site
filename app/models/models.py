@@ -143,6 +143,29 @@ class ProductImages(Base):
     product = relationship('Products', backref='images')
 
 
+class ProductDocuments(Base):
+    __tablename__ = 'ProductDocuments'
+    Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
+    ProductId = Column(String(36), ForeignKey('Products.Id'), nullable=False, info={"label_fa": "محصول"})
+
+    FileUrl = Column(String(1000), nullable=False, info={"label_fa": "آدرس فایل"})
+    FileName = Column(String(500), nullable=True, info={"label_fa": "نام فایل"})
+    ContentType = Column(String(255), nullable=True, info={"label_fa": "نوع محتوا"})
+    FileSize = Column(Integer, nullable=True, info={"label_fa": "حجم (بایت)"})
+    SortOrder = Column(Integer, nullable=False, default=0, info={"label_fa": "ترتیب نمایش"})
+
+    # Audit + soft delete
+    IsDeleted = Column(Boolean, nullable=False, default=False, info={"label_fa": "حذف شده"})
+    CreatedAt = Column(DateTime, nullable=False, default=datetime.utcnow, info={"label_fa": "تاریخ ایجاد"})
+    CreatedBy = Column(String(36), nullable=True, info={"label_fa": "ایجاد کننده"})
+    UpdatedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ ویرایش"})
+    UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
+    DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
+    DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
+
+    product = relationship('Products', backref='documents')
+
+
 class BlogCategories(Base):
     __tablename__ = 'BlogCategories'
     Id = Column(String(36), primary_key=True, default=new_guid_str, info={"label_fa": "شناسه"})
@@ -166,6 +189,9 @@ class BlogCategories(Base):
     UpdatedBy = Column(String(36), nullable=True, info={"label_fa": "ویرایش کننده"})
     DeletedAt = Column(DateTime, nullable=True, info={"label_fa": "تاریخ حذف"})
     DeletedBy = Column(String(36), nullable=True, info={"label_fa": "حذف کننده"})
+
+    def __str__(self):
+        return self.Title or str(self.Id)
 
 
 class Blogs(Base):

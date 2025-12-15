@@ -300,6 +300,22 @@ class LocalizedModelView(SecureModelView):
         self.form_excluded_columns = tuple(combined_excluded)
 
         super().__init__(model, session, **kwargs)
+
+        # If this is the Product admin view, register inline model for documents
+        try:
+            from app.models.models import ProductDocuments
+            if model.__tablename__ == 'Products':
+                # Use custom document upload field for FileUrl in inline form
+                from admin_area.form_fields import DocumentUploadField
+                self.inline_models = (
+                    (ProductDocuments, dict(
+                        form_overrides={'FileUrl': DocumentUploadField},
+                        form_args={'FileUrl': {'label': 'فایل مرتبط'}, 'FileName': {'label': 'نام فایل'}}
+                    )),
+                )
+        except Exception:
+            # Safe to ignore if import fails during other model inits
+            pass
     
     def _persian_date_formatter(self, view, context, model, name):
         """Format date/datetime fields to Persian date"""
@@ -331,6 +347,34 @@ class LocalizedModelView(SecureModelView):
                 model.UpdatedAt = datetime.utcnow()
             if hasattr(model, 'UpdatedBy') and current_user.is_authenticated:
                 model.UpdatedBy = str(current_user.id) if hasattr(current_user, 'id') else None
+        # Before finishing save, handle any uploaded document files for ProductDocuments
+        try:
+            from werkzeug.datastructures import FileStorage
+            from app.utils.upload import save_uploaded_file, delete_uploaded_file
+            # model.documents exists only for Products
+            docs = getattr(model, 'documents', None) or []
+            for d in docs:
+                val = getattr(d, 'FileUrl', None)
+                # If a FileStorage was provided by the form, save it and set metadata
+                if isinstance(val, FileStorage):
+                    try:
+                        # save_uploaded_file returns a URL or path
+                        url = save_uploaded_file(val, subfolder='product-docs')
+                        if url:
+                            d.FileUrl = url
+                            d.FileName = getattr(val, 'filename', None)
+                            d.ContentType = getattr(val, 'mimetype', None)
+                            try:
+                                d.FileSize = int(getattr(val, 'content_length', 0) or 0)
+                            except Exception:
+                                d.FileSize = None
+                    except Exception:
+                        # ignore file save errors to avoid breaking whole form; log optional
+                        import logging
+                        logging.getLogger(__name__).exception('Failed to save uploaded document')
+        except Exception:
+            pass
+
         super(LocalizedModelView, self).on_model_change(form, model, is_created)
 
 
@@ -359,6 +403,8 @@ class CategoryAdminView(LocalizedModelView):
 
     column_list = ('Id', 'Title', 'Slug', 'IsActive', 'SortOrder')
     column_filters = ('IsActive',)
+    # Show parent title in list view (if exists)
+    column_list = ('Id', 'Title', 'parent', 'Slug', 'IsActive', 'SortOrder')
 
     # Only show business fields in the form; system fields are filled automatically
     # Use the `parent` relationship in the form so we can enable AJAX search
@@ -378,6 +424,7 @@ class CategoryAdminView(LocalizedModelView):
     )
 
     form_excluded_columns = (
+        'Id',
         'IsDeleted',
         'CreatedAt',
         'CreatedBy',
@@ -395,6 +442,11 @@ class CategoryAdminView(LocalizedModelView):
             'fields': ('Title',),
             'page_size': 10
         }
+    }
+
+    # Formatter to display parent's Title (if set)
+    column_formatters = {
+        'parent': lambda view, context, model, name: (getattr(model.parent, 'Title', '') if getattr(model, 'parent', None) else '')
     }
 
 
@@ -742,6 +794,11 @@ class BlogAdminView(LocalizedModelView):
         'IsPublished',
         'PublishedAt',
     )
+
+    # Ensure the relationship field shows a Persian label
+    form_args = {
+        'category': {'label': 'دسته‌بندی'}
+    }
     
     form_excluded_columns = (
         'Id',

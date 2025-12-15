@@ -38,6 +38,14 @@ else:
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app.models.models import Base
+# Ensure any other modules that declare tables are imported so their
+# Table objects are present on the MetaData used by Alembic autogenerate.
+# For example, the admin user model is defined under admin_area.models.
+try:
+    import admin_area.models  # registers `users` table on Base.metadata
+except Exception:
+    # Non-fatal: if admin_area isn't available in this context, continue.
+    pass
 
 target_metadata = Base.metadata
 
