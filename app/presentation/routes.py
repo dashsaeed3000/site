@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, render_template_string, request, redirect, url_for, session, send_from_directory, flash, jsonify
+from flask import Blueprint, render_template, render_template_string, request, redirect, url_for, session, send_from_directory, flash, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from pathlib import Path
 from datetime import datetime
@@ -561,11 +561,52 @@ def login():
 
 
 @main_bp.route('/logout')
-@login_required
 def logout():
-    """User logout"""
-    logout_user()
+    """User logout - clears flask-login and OAuth session info"""
+    try:
+        logout_user()
+    except Exception:
+        pass
+    session.pop('oauth_user', None)
     flash('خروج موفقیت‌آمیز بود', 'success')
+    return redirect(url_for('main.index'))
+
+
+@main_bp.route('/login/google')
+def login_google():
+    """Start Google OAuth login"""
+    # Use HTTPS external URL for redirect
+    redirect_uri = url_for('main.authorize', _external=True, _scheme='https')
+    try:
+        return current_app.oauth.google.authorize_redirect(redirect_uri)
+    except Exception:
+        flash('Google OAuth پیکربندی نشده است. لطفا متغیرهای محیطی را بررسی کنید.', 'error')
+        return redirect(url_for('main.login'))
+
+
+@main_bp.route('/authorize')
+def authorize():
+    """OAuth2 callback handler for Google"""
+    # Exchange code for token
+    token = current_app.oauth.google.authorize_access_token()
+    if not token:
+        flash('خطا در احراز هویت گوگل', 'error')
+        return redirect(url_for('main.login'))
+
+    # Try to fetch user info (OpenID Connect userinfo endpoint)
+    try:
+        resp = current_app.oauth.google.get('userinfo')
+        user_info = resp.json()
+    except Exception:
+        user_info = {}
+
+    # Store basic user info in session
+    session['oauth_user'] = {
+        'name': user_info.get('name') or user_info.get('email'),
+        'email': user_info.get('email')
+    }
+
+    flash('ورود با گوگل با موفقیت انجام شد', 'success')
     return redirect(url_for('main.index'))
 
 

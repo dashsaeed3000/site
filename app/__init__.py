@@ -3,6 +3,9 @@
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from .config.settings import settings
+from flask_session import Session
+from authlib.integrations.flask_client import OAuth
+from flask import current_app
 
 csrf = CSRFProtect()
 
@@ -12,6 +15,27 @@ def create_app():
     app.config.from_mapping(settings.flask_config())
 
     csrf.init_app(app)
+
+    # Configure server-side sessions for OAuth usage
+    app.config.setdefault('SESSION_TYPE', 'filesystem')
+    app.config.setdefault('SESSION_PERMANENT', False)
+    Session(app)
+
+    # Initialize OAuth (Authlib)
+    oauth = OAuth(app)
+    # Register Google OAuth provider using OpenID Connect discovery
+    google_client_id = getattr(settings, 'GOOGLE_CLIENT_ID', None) or None
+    google_client_secret = getattr(settings, 'GOOGLE_CLIENT_SECRET', None) or None
+    if google_client_id and google_client_secret:
+        oauth.register(
+            name='google',
+            client_id=google_client_id,
+            client_secret=google_client_secret,
+            server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+            client_kwargs={'scope': 'openid email profile'},
+        )
+    # Expose oauth on app for blueprints to use
+    app.oauth = oauth
 
     # Add Persian date filter to Jinja2
     from .utils.persian_date import to_persian_date

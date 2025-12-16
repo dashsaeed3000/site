@@ -7,8 +7,26 @@ try:
     BASE_DIR = Path(__file__).resolve().parents[2]
     load_dotenv(BASE_DIR / '.env')
 except ImportError:
-    # python-dotenv not installed, skip loading .env
-    pass
+    # python-dotenv not installed — fall back to a minimal .env parser
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    env_path = BASE_DIR / '.env'
+    if env_path.exists():
+        try:
+            with open(env_path, 'r', encoding='utf-8') as f:
+                for raw in f:
+                    line = raw.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    if '=' not in line:
+                        continue
+                    key, val = line.split('=', 1)
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    if key:
+                        os.environ.setdefault(key, val)
+        except Exception:
+            # If anything goes wrong reading .env, continue without raising
+            pass
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -30,12 +48,18 @@ class Settings:
         self.STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
         self.FLASK_ENV = os.getenv('FLASK_ENV', 'production')
         self.WTF_CSRF_TIME_LIMIT = None
+        # OAuth settings (configure via environment variables)
+        self.GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+        self.GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
     def flask_config(self):
         return {
             'SECRET_KEY': self.SECRET_KEY,
             'WTF_CSRF_TIME_LIMIT': self.WTF_CSRF_TIME_LIMIT,
             'ENV': self.FLASK_ENV,
+            # Session config for Flask-Session
+            'SESSION_TYPE': os.getenv('SESSION_TYPE', 'filesystem'),
+            'SESSION_PERMANENT': False,
         }
 
 settings = Settings()
