@@ -563,18 +563,8 @@ def login():
 
 @main_bp.route('/logout')
 def logout():
-    """User logout - clears flask-login and OAuth session info"""
-    try:
-        logout_user()
-    except Exception:
-        pass
-    # Clear entire session to ensure all session-backed state is removed
-    try:
-        session.clear()
-    except Exception:
-        # Fallback: remove known keys
-        session.pop('oauth_user', None)
-        session.pop('redirect_after_login', None)
+    logout_user()
+    session.clear()
     flash('خروج موفقیت‌آمیز بود', 'success')
     return redirect(url_for('main.index'))
 
