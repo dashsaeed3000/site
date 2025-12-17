@@ -51,6 +51,16 @@ class Settings:
         # OAuth settings (configure via environment variables)
         self.GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
         self.GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+        # Session cookie settings
+        # By default, enable secure cookies in non-development environments
+        raw_secure = os.getenv('SESSION_COOKIE_SECURE')
+        if raw_secure is None:
+            self.SESSION_COOKIE_SECURE = (self.FLASK_ENV != 'development')
+        else:
+            self.SESSION_COOKIE_SECURE = str(raw_secure).lower() in ('1', 'true', 'yes')
+        self.SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+        self.SESSION_COOKIE_HTTPONLY = os.getenv('SESSION_COOKIE_HTTPONLY', 'true').lower() in ('1', 'true', 'yes')
+        self.SESSION_COOKIE_NAME = os.getenv('SESSION_COOKIE_NAME', 'session')
 
     def flask_config(self):
         return {
@@ -60,6 +70,10 @@ class Settings:
             # Session config for Flask-Session
             'SESSION_TYPE': os.getenv('SESSION_TYPE', 'filesystem'),
             'SESSION_PERMANENT': False,
+            'SESSION_COOKIE_SECURE': self.SESSION_COOKIE_SECURE,
+            'SESSION_COOKIE_SAMESITE': self.SESSION_COOKIE_SAMESITE,
+            'SESSION_COOKIE_HTTPONLY': self.SESSION_COOKIE_HTTPONLY,
+            'SESSION_COOKIE_NAME': self.SESSION_COOKIE_NAME,
         }
 
 settings = Settings()

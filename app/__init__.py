@@ -6,6 +6,7 @@ from .config.settings import settings
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
 from flask import current_app
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 csrf = CSRFProtect()
 
@@ -20,6 +21,10 @@ def create_app():
     app.config.setdefault('SESSION_TYPE', 'filesystem')
     app.config.setdefault('SESSION_PERMANENT', False)
     Session(app)
+
+    # If the app is behind a proxy (load balancer, Cloudflare), honor X-Forwarded headers
+    # so Flask can build correct _external URLs and cookie 'secure' behavior is correct.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
     # Initialize OAuth (Authlib)
     oauth = OAuth(app)
