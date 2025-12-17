@@ -600,12 +600,13 @@ def auth_google_callback():
     fetching that can surface 403 errors when `authorize_access_token()` is
     used in some environments.
     """
-    code = request.args.get('code')
-    state = request.args.get('state')
+    try:
+        code = request.args.get('code')
+        state = request.args.get('state')
 
-    if not code:
-        flash('خطا: کد بازگشتی گوگل موجود نیست', 'error')
-        return redirect(url_for('main.login'))
+        if not code:
+            flash('خطا: کد بازگشتی گوگل موجود نیست', 'error')
+            return redirect(url_for('main.login'))
 
     # Build redirect_uri the same way we used before
     redirect_uri = url_for('main.auth_google_callback', _external=True, _scheme='https')
@@ -666,8 +667,8 @@ def auth_google_callback():
 
     name = user_info.get('name') or email.split('@')[0]
 
-    # Upsert user and login
-    with next(get_session()) as db:
+        # Upsert user and login
+        with next(get_session()) as db:
         user_service = UserService(db)
         user = user_service.get_user_by_email(email)
 
@@ -705,9 +706,14 @@ def auth_google_callback():
             flash('خطا در پردازش حساب کاربری. لطفا دوباره تلاش کنید.', 'error')
             return redirect(url_for('main.login'))
 
-    dest = session.pop('redirect_after_login', None) or url_for('main.index')
-    flash('ورود با گوگل با موفقیت انجام شد', 'success')
-    return redirect(dest)
+        dest = session.pop('redirect_after_login', None) or url_for('main.index')
+        flash('ورود با گوگل با موفقیت انجام شد', 'success')
+        return redirect(dest)
+    except Exception as e:
+        current_app.logger.exception('Unexpected error in Google callback: %s', e)
+        # In production do not expose internals to the user; show a friendly message
+        flash('خطای داخلی در ورود با گوگل. لطفا بعدا تلاش کنید.', 'error')
+        return redirect(url_for('main.login'))
 
 
 
