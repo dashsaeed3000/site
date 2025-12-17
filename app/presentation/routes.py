@@ -576,7 +576,7 @@ def logout():
 def login_google():
     """Start Google OAuth login"""
     # Use HTTPS external URL for redirect
-    redirect_uri = url_for('main.authorize', _external=True, _scheme='https')
+    redirect_uri = url_for('main.auth_google_callback', _external=True, _scheme='https')
     try:
         return current_app.oauth.google.authorize_redirect(redirect_uri)
     except Exception:
@@ -608,6 +608,63 @@ def authorize():
 
     flash('ورود با گوگل با موفقیت انجام شد', 'success')
     return redirect(url_for('main.index'))
+
+
+
+
+@main_bp.route('/auth/google/callback')
+def auth_google_callback():
+    """OAuth2 callback handler for Google - FIXED route path"""
+    try:
+        # Exchange code for token
+        token = current_app.oauth.google.authorize_access_token()
+        if not token:
+            flash('خطا در احراز هویت گوگل', 'error')
+            return redirect(url_for('main.login'))
+
+        # Fetch user info (OpenID Connect userinfo endpoint)
+        resp = current_app.oauth.google.get('userinfo')
+        user_info = resp.json()
+        
+        if not user_info or not user_info.get('email'):
+            flash('خطا در دریافت اطلاعات کاربری از گوگل', 'error')
+            return redirect(url_for('main.login'))
+
+        # Get or create user based on Google email
+        with next(get_session()) as db:
+            user_service = UserService(db)
+            
+            # Try to find existing user by email
+            user = user_service.get_user_by_email(user_info.get('email'))
+            
+            if not user:
+                # Create new user with Google info
+                name = user_info.get('name') or user_info.get('email').split('@')[0]
+                user = user_service.create_user_from_phone(
+                    phone=None,  # No phone for OAuth users
+                    email=user_info.get('email'),
+                    name=name
+                )
+                db.commit()
+            
+            # Login the user
+            login_user(user, remember=True)
+            
+            # Store OAuth info in session
+            session['oauth_user'] = {
+                'name': user_info.get('name'),
+                'email': user_info.get('email'),
+                'picture': user_info.get('picture')
+            }
+
+        flash('ورود با گوگل با موفقیت انجام شد', 'success')
+        return redirect(url_for('main.index'))
+        
+    except Exception as e:
+        flash(f'خطا در ورود با گوگل: {str(e)}', 'error')
+        return redirect(url_for('main.login'))
+
+
 
 
 # Checkout Routes
