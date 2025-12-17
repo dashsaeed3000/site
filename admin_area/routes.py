@@ -101,6 +101,12 @@ def login():
 def logout():
     """Logout route"""
     logout_user()
+    # Clear session to remove any residual values
+    try:
+        from flask import session
+        session.clear()
+    except Exception:
+        pass
     flash('You have been logged out.', 'info')
     return redirect(url_for('admin_area.login'))
 

@@ -657,6 +657,17 @@ class ProductAdminView(LocalizedModelView):
         """Delete associated image file when model is deleted"""
         if model.MainImageUrl:
             delete_uploaded_file(model.MainImageUrl)
+        # Delete any product document files associated with this product
+        try:
+            docs = getattr(model, 'documents', None) or []
+            for d in docs:
+                try:
+                    if getattr(d, 'FileUrl', None):
+                        delete_uploaded_file(d.FileUrl)
+                except Exception:
+                    pass
+        except Exception:
+            pass
         super(ProductAdminView, self).on_model_delete(model)
 
 

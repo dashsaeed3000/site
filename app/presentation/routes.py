@@ -568,7 +568,13 @@ def logout():
         logout_user()
     except Exception:
         pass
-    session.pop('oauth_user', None)
+    # Clear entire session to ensure all session-backed state is removed
+    try:
+        session.clear()
+    except Exception:
+        # Fallback: remove known keys
+        session.pop('oauth_user', None)
+        session.pop('redirect_after_login', None)
     flash('خروج موفقیت‌آمیز بود', 'success')
     return redirect(url_for('main.index'))
 
