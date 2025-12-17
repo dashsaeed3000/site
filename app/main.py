@@ -11,4 +11,4 @@ app = create_app()
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     # Run with HTTPS for local testing using adhoc cert
-    app.run(host="0.0.0.0", port=port, debug=True, ssl_context="adhoc")
+    app.run(host="0.0.0.0", port=port, debug=True)
