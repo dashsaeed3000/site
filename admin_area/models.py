@@ -28,6 +28,9 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False, info={"label_fa": "فعال"})
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, info={"label_fa": "تاریخ ایجاد"})
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, info={"label_fa": "تاریخ ویرایش"})
+    # New fields for SMS / phone flows
+    mobile = Column(String(30), unique=True, nullable=True, info={"label_fa": "شماره موبایل"})
+    activation_code = Column(String(32), nullable=True, info={"label_fa": "کد فعال‌سازی"})
     
     def set_password(self, password: str):
         """Hash and set password using bcrypt directly"""
@@ -62,7 +65,7 @@ class User(Base):
             # Verify password
             stored_hash = self.password_hash.encode('utf-8') if isinstance(self.password_hash, str) else self.password_hash
             return bcrypt.checkpw(password_bytes, stored_hash)
-        except Exception as e:
+        except Exception:
             return False
     
     def is_admin(self) -> bool:

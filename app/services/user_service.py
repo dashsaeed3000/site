@@ -21,35 +21,82 @@ class UserService:
         alphabet = string.ascii_letters + string.digits + string.punctuation
         password = ''.join(secrets.choice(alphabet) for _ in range(length))
         return password
+
+    def _normalize_phone(self, phone: Optional[str]) -> Optional[str]:
+        if not phone:
+            return None
+        normalized = ''.join(filter(str.isdigit, phone))
+        return normalized if normalized else None
+
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        """Get user by email"""
+        if not email:
+            return None
+        return self.db.query(User).filter(User.email == email).first()
     
     def create_user_from_phone(
         self,
-        phone: str,
+        phone: Optional[str],
         email: str = None,
         name: str = None
     ) -> User:
         """
-        Create a user account automatically after phone verification.
-        Uses phone number as username.
+        Create a user account automatically after phone verification or for OAuth users.
+        If phone is provided, username will be the normalized phone; otherwise a safe unique username
+        will be generated (based on email or random).
         """
-        # Normalize phone number
-        normalized_phone = ''.join(filter(str.isdigit, phone))
-        
-        # Check if user already exists
-        existing_user = get_user_by_username(normalized_phone)
-        if existing_user:
-            return existing_user
-        
-        # Generate secure random password
+        normalized_phone = self._normalize_phone(phone)
+
+        # If phone provided, check mobile uniqueness first
+        if normalized_phone:
+            existing_by_mobile = self.db.query(User).filter(User.mobile == normalized_phone).first()
+            if existing_by_mobile:
+                return existing_by_mobile
+
+        # If email exists, try to reuse user by email
+        if email:
+            existing_by_email = self.get_user_by_email(email)
+            if existing_by_email:
+                # Ensure mobile saved if phone provided
+                if normalized_phone and not existing_by_email.mobile:
+                    existing_by_email.mobile = normalized_phone
+                    self.db.flush()
+                return existing_by_email
+
+        # Generate base username
+        if normalized_phone:
+            base_username = normalized_phone
+        elif email:
+            base_username = email.split('@')[0]
+        else:
+            base_username = 'user'
+
+        # Ensure username uniqueness by appending suffix if needed
+        candidate = base_username
+        suffix = 0
+        while self.db.query(User).filter(User.username == candidate).first():
+            suffix += 1
+            candidate = f"{base_username}{suffix}"
+            if suffix > 9999:
+                # fallback to random
+                candidate = f"{base_username}-{secrets.token_hex(4)}"
+                break
+
+        username_to_use = candidate
+
+        # Generate secure random password for account (user can reset later)
         random_password = self.generate_secure_password()
-        
-        # Create user
+
         user = User(
-            username=normalized_phone,
-            email=email or f"{normalized_phone}@example.com",  # Placeholder email
+            username=username_to_use,
+            email=email or f"{username_to_use}@example.com",
             role='user',
             is_active=True
         )
+        # write mobile and leave activation_code empty for now
+        if normalized_phone:
+            user.mobile = normalized_phone
+
         user.set_password(random_password)
         
         self.db.add(user)
@@ -58,9 +105,11 @@ class UserService:
         return user
     
     def get_user_by_phone(self, phone: str) -> Optional[User]:
-        """Get user by phone number (username)"""
-        normalized_phone = ''.join(filter(str.isdigit, phone))
-        return get_user_by_username(normalized_phone)
+        """Get user by phone number (mobile)"""
+        normalized_phone = self._normalize_phone(phone)
+        if not normalized_phone:
+            return None
+        return self.db.query(User).filter(User.mobile == normalized_phone).first()
     
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID"""
