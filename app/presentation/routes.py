@@ -12,6 +12,7 @@ from ..services.cart_service import CartService
 from ..services.order_service import OrderService
 from ..services.phone_verification_service import PhoneVerificationService
 from ..services.user_service import UserService
+import requests
 from ..presentation.forms import RegistrationForm, LoginForm, PhoneVerificationForm, CheckoutForm
 from admin_area.models import get_user_by_username
 from ..utils.upload import get_upload_folder
@@ -592,104 +593,121 @@ def authorize():
 
 @main_bp.route('/auth/google/callback')
 def auth_google_callback():
-    """OAuth2 callback handler for Google - unified handler that upserts user and logs them in"""
+    """OAuth2 callback handler for Google.
+
+    This handler performs a manual token exchange and calls the OpenID Connect
+    `userinfo` endpoint with the access token. This avoids automatic JWKS
+    fetching that can surface 403 errors when `authorize_access_token()` is
+    used in some environments.
+    """
+    code = request.args.get('code')
+    state = request.args.get('state')
+
+    if not code:
+        flash('خطا: کد بازگشتی گوگل موجود نیست', 'error')
+        return redirect(url_for('main.login'))
+
+    # Build redirect_uri the same way we used before
+    redirect_uri = url_for('main.auth_google_callback', _external=True, _scheme='https')
+
+    token_url = 'https://oauth2.googleapis.com/token'
+    client_id = current_app.config.get('GOOGLE_CLIENT_ID') or getattr(settings, 'GOOGLE_CLIENT_ID', None)
+    client_secret = current_app.config.get('GOOGLE_CLIENT_SECRET') or getattr(settings, 'GOOGLE_CLIENT_SECRET', None)
+
+    if not client_id or not client_secret:
+        current_app.logger.error('Google client id/secret not configured')
+        flash('پیکربندی گوگل OAuth ناقص است', 'error')
+        return redirect(url_for('main.login'))
+
+    data = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
+
     try:
-        # Exchange code for token
-        token = current_app.oauth.google.authorize_access_token()
-        if not token:
-            flash('خطا در احراز هویت گوگل', 'error')
+        tok_resp = requests.post(token_url, data=data, timeout=10)
+        if tok_resp.status_code != 200:
+            current_app.logger.error('Token exchange failed (%s): %s', tok_resp.status_code, tok_resp.text)
+            flash('خطا در تبادل توکن با گوگل', 'error')
             return redirect(url_for('main.login'))
+        token_json = tok_resp.json()
+    except Exception as e:
+        current_app.logger.exception('Token request error: %s', e)
+        flash('خطا در ارتباط با سرویس احراز هویت گوگل', 'error')
+        return redirect(url_for('main.login'))
 
-        # Fetch user info (OpenID Connect userinfo endpoint)
-        resp = current_app.oauth.google.get('userinfo')
-        user_info = {}
-        try:
-            user_info = resp.json() if resp else {}
-        except Exception:
-            user_info = {}
+    access_token = token_json.get('access_token')
+    if not access_token:
+        current_app.logger.error('No access_token in token response: %s', token_json)
+        flash('توکن دسترسی دریافت نشد', 'error')
+        return redirect(url_for('main.login'))
 
-        if not user_info or not user_info.get('email'):
+    # Fetch userinfo using access token
+    try:
+        ui_resp = requests.get('https://openidconnect.googleapis.com/v1/userinfo', headers={'Authorization': f'Bearer {access_token}'}, timeout=10)
+        if ui_resp.status_code != 200:
+            current_app.logger.error('Userinfo request failed (%s): %s', ui_resp.status_code, ui_resp.text)
             flash('خطا در دریافت اطلاعات کاربری از گوگل', 'error')
             return redirect(url_for('main.login'))
+        user_info = ui_resp.json()
+    except Exception as e:
+        current_app.logger.exception('Userinfo request error: %s', e)
+        flash('خطا در دریافت اطلاعات کاربری از گوگل', 'error')
+        return redirect(url_for('main.login'))
 
-        email = user_info.get('email')
-        name = user_info.get('name') or email.split('@')[0]
+    email = user_info.get('email')
+    if not email:
+        current_app.logger.error('Google userinfo did not contain email: %s', user_info)
+        flash('حساب گوگل ایمیل معتبر ندارد', 'error')
+        return redirect(url_for('main.login'))
 
-        # Upsert user and login
-        with next(get_session()) as db:
-            user_service = UserService(db)
-            user = user_service.get_user_by_email(email)
+    name = user_info.get('name') or email.split('@')[0]
 
-            try:
-                if not user:
-                    # Create new user for OAuth login (no phone)
-                    user = user_service.create_user_from_phone(
-                        phone=None,
-                        email=email,
-                        name=name
-                    )
+    # Upsert user and login
+    with next(get_session()) as db:
+        user_service = UserService(db)
+        user = user_service.get_user_by_email(email)
+
+        try:
+            if not user:
+                user = user_service.create_user_from_phone(phone=None, email=email, name=name)
+                db.commit()
+            else:
+                # Update profile fields if present
+                updated = False
+                picture = user_info.get('picture')
+                if hasattr(user, 'name') and user.name != name:
+                    user.name = name
+                    updated = True
+                if picture and hasattr(user, 'avatar') and user.avatar != picture:
+                    user.avatar = picture
+                    updated = True
+                if updated:
                     db.commit()
-                else:
-                    # Optional: update user's name/avatar if desired (safe best-effort)
-                    try:
-                        updated = False
-                        if getattr(user, 'Name', None) and user.Name != name:
-                            user.Name = name
-                            updated = True
-                        if getattr(user, 'name', None) and user.name != name:
-                            user.name = name
-                            updated = True
-                        # If your User model has avatar/picture fields, update similarly:
-                        picture = user_info.get('picture')
-                        if picture:
-                            if hasattr(user, 'Avatar') and user.Avatar != picture:
-                                user.Avatar = picture
-                                updated = True
-                            if hasattr(user, 'avatar') and user.avatar != picture:
-                                user.avatar = picture
-                                updated = True
-                        if updated:
-                            db.commit()
-                    except Exception:
-                        # non-fatal: continue without failing login
-                        db.rollback()
 
-                # Ensure user is active if your model supports it
-                is_active = True
-                if hasattr(user, 'is_active'):
-                    is_active = getattr(user, 'is_active')
-                if hasattr(user, 'IsActive'):
-                    is_active = getattr(user, 'IsActive')
-
-                if not is_active:
-                    flash('حساب کاربری شما غیرفعال است', 'error')
-                    return redirect(url_for('main.login'))
-
-                # Login user with flask-login
-                login_user(user, remember=True)
-
-                # Store OAuth info in session for UI
-                session['oauth_user'] = {
-                    'name': user_info.get('name') or name,
-                    'email': email,
-                    'picture': user_info.get('picture')
-                }
-
-            except Exception as e:
-                db.rollback()
-                current_app.logger.exception('Error upserting Google user: %s', e)
-                flash('خطا در پردازش حساب کاربری. لطفا دوباره تلاش کنید.', 'error')
+            # Check active
+            is_active = True
+            if hasattr(user, 'is_active'):
+                is_active = getattr(user, 'is_active')
+            if not is_active:
+                flash('حساب کاربری شما غیرفعال است', 'error')
                 return redirect(url_for('main.login'))
 
-        # Redirect to stored destination or index
-        dest = session.pop('redirect_after_login', None) or url_for('main.index')
-        flash('ورود با گوگل با موفقیت انجام شد', 'success')
-        return redirect(dest)
+            login_user(user, remember=True)
+            session['oauth_user'] = {'name': name, 'email': email, 'picture': user_info.get('picture')}
 
-    except Exception as e:
-        current_app.logger.exception('Google OAuth callback failed: %s', e)
-        flash(f'خطا در ورود با گوگل: {str(e)}', 'error')
-        return redirect(url_for('main.login'))
+        except Exception:
+            db.rollback()
+            current_app.logger.exception('Error upserting Google user')
+            flash('خطا در پردازش حساب کاربری. لطفا دوباره تلاش کنید.', 'error')
+            return redirect(url_for('main.login'))
+
+    dest = session.pop('redirect_after_login', None) or url_for('main.index')
+    flash('ورود با گوگل با موفقیت انجام شد', 'success')
+    return redirect(dest)
 
 
 
