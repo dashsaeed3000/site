@@ -699,6 +699,12 @@ def auth_google_callback():
 
                 login_user(user, remember=True)
                 session['oauth_user'] = {'name': name, 'email': email, 'picture': user_info.get('picture')}
+                # Debug: log session contents after login
+                try:
+                    current_app.logger.info('Post-login session keys: %s', list(session.keys()))
+                    current_app.logger.info('Post-login session data (sample): %s', {k: session.get(k) for k in session.keys()})
+                except Exception:
+                    current_app.logger.exception('Failed to log session after login')
 
             except Exception:
                 db.rollback()
@@ -708,7 +714,13 @@ def auth_google_callback():
 
         dest = session.pop('redirect_after_login', None) or url_for('main.index')
         flash('ورود با گوگل با موفقیت انجام شد', 'success')
-        return redirect(dest)
+        # Build response so we can inspect Set-Cookie header in logs (helps debug missing session cookie)
+        resp = redirect(dest)
+        try:
+            current_app.logger.info('Set-Cookie header to be sent: %s', resp.headers.get('Set-Cookie'))
+        except Exception:
+            current_app.logger.exception('Failed to log Set-Cookie header')
+        return resp
     except Exception as e:
         current_app.logger.exception('Unexpected error in Google callback: %s', e)
         # In production do not expose internals to the user; show a friendly message
