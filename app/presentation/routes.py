@@ -572,16 +572,21 @@ def login():
     return render_template('user_login.html', form=form)
 
 
+
 @main_bp.route('/logout')
 def logout():
-    """User logout - clears flask-login and OAuth session info"""
-    try:
-        logout_user()
-    except Exception:
-        pass
-    session.pop('oauth_user', None)
+    logout_user()
+    session.clear()
+
+    response = redirect(url_for('main.index'))
+    response.delete_cookie(
+        current_app.config['SESSION_COOKIE_NAME'],
+        path='/',
+        domain=current_app.config.get('SESSION_COOKIE_DOMAIN')
+    )
+
     flash('خروج موفقیت‌آمیز بود', 'success')
-    return redirect(url_for('main.index'))
+    return response
 
 
 @main_bp.route('/login/google')
