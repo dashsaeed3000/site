@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}حساب کاربری{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 0;">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h3>حساب کاربری شما</h3>
+                    <p><strong>نام کاربری:</strong> {{ current_user.username }}</p>
+                    <p><strong>ایمیل:</strong> {{ current_user.email }}</p>
+                    <p><strong>شماره موبایل:</strong> {{ current_user.mobile or 'وارد نشده' }}</p>
+                    <p><a href="{{ url_for('main.logout') }}" class="btn btn-danger">خروج</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

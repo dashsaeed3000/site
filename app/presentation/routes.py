@@ -524,6 +524,12 @@ def register():
                 
                 # Auto-login after registration
                 login_user(new_user, remember=True)
+                # Persist user id in session to help templates and checks
+                try:
+                    session['user_id'] = new_user.id
+                    session.modified = True
+                except Exception:
+                    current_app.logger.exception('Failed to set session user_id after registration')
                 flash('ثبت نام با موفقیت انجام شد', 'success')
                 return redirect(url_for('main.index'))
             except Exception as e:
@@ -550,6 +556,11 @@ def login():
                 return render_template('user_login.html', form=form)
             
             login_user(user, remember=form.remember_me.data)
+            try:
+                session['user_id'] = user.id
+                session.modified = True
+            except Exception:
+                current_app.logger.exception('Failed to set session user_id after login')
             next_page = request.args.get('next')
             if not next_page:
                 next_page = url_for('main.index')
@@ -563,8 +574,12 @@ def login():
 
 @main_bp.route('/logout')
 def logout():
-    logout_user()
-    session.clear()
+    """User logout - clears flask-login and OAuth session info"""
+    try:
+        logout_user()
+    except Exception:
+        pass
+    session.pop('oauth_user', None)
     flash('خروج موفقیت‌آمیز بود', 'success')
     return redirect(url_for('main.index'))
 
@@ -585,6 +600,13 @@ def login_google():
 def authorize():
     """Legacy OAuth callback route — delegate to unified handler to avoid duplicated logic"""
     return auth_google_callback()
+
+
+@main_bp.route('/account')
+@login_required
+def account():
+    """Simple account/profile page"""
+    return render_template('account.html')
 
 
 @main_bp.route('/auth/google/callback')
@@ -694,6 +716,11 @@ def auth_google_callback():
                     return redirect(url_for('main.login'))
 
                 login_user(user, remember=True)
+                try:
+                    session['user_id'] = user.id
+                    session.modified = True
+                except Exception:
+                    current_app.logger.exception('Failed to set session user_id after OAuth login')
                 session['oauth_user'] = {'name': name, 'email': email, 'picture': user_info.get('picture')}
                 # Debug: log session contents after login
                 try:
@@ -801,6 +828,11 @@ def checkout():
                     
                     # Auto-login the newly created user
                     login_user(user, remember=False)
+                    try:
+                        session['user_id'] = user.id
+                        session.modified = True
+                    except Exception:
+                        current_app.logger.exception('Failed to set session user_id after checkout auto-create login')
                 
                 # Create order
                 cart = cart_service.get_cart()
