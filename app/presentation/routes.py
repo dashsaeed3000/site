@@ -562,20 +562,44 @@ def login():
 
 
 
+
 @main_bp.route('/logout')
 def logout():
-    logout_user()
-    session.clear()
-
+    """User logout with proper session cleanup"""
+    try:
+        # Log current session state for debugging
+        current_app.logger.info(f'Logout: Session keys before: {list(session.keys())}')
+        current_app.logger.info(f'Logout: current_user.is_authenticated = {current_user.is_authenticated}')
+        
+        # 1. Flask-Login logout
+        logout_user()
+        
+        # 2. Clear session completely
+        for key in list(session.keys()):
+            session.pop(key, None)
+        
+        # 3. Mark session as modified
+        session.modified = True
+        
+        # Log after cleanup
+        current_app.logger.info(f'Logout: Session keys after: {list(session.keys())}')
+        
+    except Exception as e:
+        current_app.logger.error(f'Error during logout: {e}')
+    
+    # 4. Create redirect response
     response = redirect(url_for('main.index'))
-    response.delete_cookie(
-        current_app.config['SESSION_COOKIE_NAME'],
-        path='/',
-        domain=current_app.config.get('SESSION_COOKIE_DOMAIN')
-    )
-
+    
+    # 5. Delete all possible session cookies
+    cookie_name = current_app.config.get('SESSION_COOKIE_NAME', 'session')
+    response.delete_cookie(cookie_name, path='/', domain=None)
+    response.delete_cookie(cookie_name, path='/', domain=current_app.config.get('SESSION_COOKIE_DOMAIN'))
+    response.delete_cookie('remember_token', path='/')
+    response.delete_cookie('session', path='/')  # Default Flask session cookie
+    
     flash('خروج موفقیت‌آمیز بود', 'success')
     return response
+
 
 
 @main_bp.route('/login/google')
