@@ -562,33 +562,47 @@ def login():
 
 
 
+
 @main_bp.route('/logout')
 def logout():
-    """Test logout to see what happens"""
-    import json
+    """User logout - properly clear session and cookies"""
     
-    # Get current cookies
-    cookies_before = {k: v for k, v in request.cookies.items()}
+    # 1. Flask-Login logout
+    logout_user()
     
-    # Clear session
+    # 2. Clear all session data
     session.clear()
     
-    # Create response
+    # 3. Create redirect response
     response = redirect(url_for('main.index'))
     
-    # Try multiple ways to delete the session cookie
+    # 4. Delete session cookie with EXACT same parameters as when it was created
+    # The cookie must be deleted with the same path, domain, secure, httponly, samesite
+    response.set_cookie(
+        'session',
+        value='',
+        expires=0,
+        max_age=0,
+        path='/',
+        domain=None,  # Let browser use default (matenco.ir)
+        secure=False,  # Must match the Secure flag (false in your case)
+        httponly=True,  # Must match the HttpOnly flag (true in your case)
+        samesite='Lax'  # Must match the SameSite (Lax in your case)
+    )
+    
+    # Alternative method - also delete with delete_cookie
     response.delete_cookie('session', path='/', domain=None)
-    response.delete_cookie('session', path='/', domain='matenco.ir')
-    response.delete_cookie('session', path='/', domain='.matenco.ir')
     
-    # Set to empty with expiration
-    response.set_cookie('session', '', expires=0, path='/')
+    # 5. Delete any other cookies
+    response.delete_cookie('remember_token', path='/')
+    response.delete_cookie('wcdn_pduuid', path='/')
     
-    # Log what we're doing
-    current_app.logger.info(f'Cookies before logout: {json.dumps(cookies_before)}')
-    current_app.logger.info(f'Response headers: {response.headers}')
+    # 6. Prevent caching
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     
-    flash('تست خروج انجام شد - کوکی‌ها را در DevTools چک کنید', 'info')
+    flash('خروج موفقیت‌آمیز بود', 'success')
     return response
 
 
