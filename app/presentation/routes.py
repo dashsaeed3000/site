@@ -522,14 +522,8 @@ def register():
                 
                 db.commit()
                 
-                # Auto-login after registration
+                # Auto-login after registration (Flask-Login will manage session)
                 login_user(new_user, remember=True)
-                # Persist user id in session to help templates and checks
-                try:
-                    session['user_id'] = new_user.id
-                    session.modified = True
-                except Exception:
-                    current_app.logger.exception('Failed to set session user_id after registration')
                 flash('ثبت نام با موفقیت انجام شد', 'success')
                 return redirect(url_for('main.index'))
             except Exception as e:
@@ -556,11 +550,6 @@ def login():
                 return render_template('user_login.html', form=form)
             
             login_user(user, remember=form.remember_me.data)
-            try:
-                session['user_id'] = user.id
-                session.modified = True
-            except Exception:
-                current_app.logger.exception('Failed to set session user_id after login')
             next_page = request.args.get('next')
             if not next_page:
                 next_page = url_for('main.index')
@@ -721,11 +710,7 @@ def auth_google_callback():
                     return redirect(url_for('main.login'))
 
                 login_user(user, remember=True)
-                try:
-                    session['user_id'] = user.id
-                    session.modified = True
-                except Exception:
-                    current_app.logger.exception('Failed to set session user_id after OAuth login')
+                # Keep oauth_user data in session only for short-term use (templates should use current_user)
                 session['oauth_user'] = {'name': name, 'email': email, 'picture': user_info.get('picture')}
                 # Debug: log session contents after login
                 try:
@@ -831,13 +816,8 @@ def checkout():
                     db.commit()
                     user_id = user.id
                     
-                    # Auto-login the newly created user
+                    # Auto-login the newly created user (Flask-Login will manage session)
                     login_user(user, remember=False)
-                    try:
-                        session['user_id'] = user.id
-                        session.modified = True
-                    except Exception:
-                        current_app.logger.exception('Failed to set session user_id after checkout auto-create login')
                 
                 # Create order
                 cart = cart_service.get_cart()
