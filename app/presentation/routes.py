@@ -590,10 +590,6 @@ def login_google():
         return redirect(url_for('main.login'))
 
 
-@main_bp.route('/authorize')
-def authorize():
-    """Legacy OAuth callback route — delegate to unified handler to avoid duplicated logic"""
-    return auth_google_callback()
 
 
 @main_bp.route('/account')
