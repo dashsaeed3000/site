@@ -565,37 +565,42 @@ def login():
 
 @main_bp.route('/logout')
 def logout():
-    """User logout with proper session cleanup"""
-    try:
-        # Log current session state for debugging
-        current_app.logger.info(f'Logout: Session keys before: {list(session.keys())}')
-        current_app.logger.info(f'Logout: current_user.is_authenticated = {current_user.is_authenticated}')
-        
-        # 1. Flask-Login logout
-        logout_user()
-        
-        # 2. Clear session completely
-        for key in list(session.keys()):
-            session.pop(key, None)
-        
-        # 3. Mark session as modified
-        session.modified = True
-        
-        # Log after cleanup
-        current_app.logger.info(f'Logout: Session keys after: {list(session.keys())}')
-        
-    except Exception as e:
-        current_app.logger.error(f'Error during logout: {e}')
+    """User logout - properly clear session and cookies"""
     
-    # 4. Create redirect response
+    # 1. Flask-Login logout
+    logout_user()
+    
+    # 2. Clear all session data
+    session.clear()
+    
+    # 3. Create redirect response
     response = redirect(url_for('main.index'))
     
-    # 5. Delete all possible session cookies
-    cookie_name = current_app.config.get('SESSION_COOKIE_NAME', 'session')
-    response.delete_cookie(cookie_name, path='/', domain=None)
-    response.delete_cookie(cookie_name, path='/', domain=current_app.config.get('SESSION_COOKIE_DOMAIN'))
+    # 4. Delete session cookie with EXACT same parameters as when it was created
+    # The cookie must be deleted with the same path, domain, secure, httponly, samesite
+    response.set_cookie(
+        'session',
+        value='',
+        expires=0,
+        max_age=0,
+        path='/',
+        domain=None,  # Let browser use default (matenco.ir)
+        secure=False,  # Must match the Secure flag (false in your case)
+        httponly=True,  # Must match the HttpOnly flag (true in your case)
+        samesite='Lax'  # Must match the SameSite (Lax in your case)
+    )
+    
+    # Alternative method - also delete with delete_cookie
+    response.delete_cookie('session', path='/', domain=None)
+    
+    # 5. Delete any other cookies
     response.delete_cookie('remember_token', path='/')
-    response.delete_cookie('session', path='/')  # Default Flask session cookie
+    response.delete_cookie('wcdn_pduuid', path='/')
+    
+    # 6. Prevent caching
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     
     flash('خروج موفقیت‌آمیز بود', 'success')
     return response
