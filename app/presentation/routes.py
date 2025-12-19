@@ -581,8 +581,8 @@ def logout():
 @main_bp.route('/login/google')
 def login_google():
     """Start Google OAuth login"""
-    # Use HTTPS external URL for redirect
-    redirect_uri = url_for('main.auth_google_callback', _external=True, _scheme='https')
+    # Prefer an explicit redirect URI from config (must match Google Console)
+    redirect_uri = current_app.config.get('GOOGLE_REDIRECT_URI') or url_for('main.auth_google_callback', _external=True, _scheme='https')
     try:
         return current_app.oauth.google.authorize_redirect(redirect_uri)
     except Exception:
@@ -615,8 +615,9 @@ def auth_google_callback():
             flash('خطا: کد بازگشتی گوگل موجود نیست', 'error')
             return redirect(url_for('main.login'))
 
-        # Build redirect_uri the same way we used before
-        redirect_uri = url_for('main.auth_google_callback', _external=True)
+        # Build redirect_uri. If an explicit `GOOGLE_REDIRECT_URI` is configured
+        # use it (it must exactly match the value registered in Google Cloud Console).
+        redirect_uri = current_app.config.get('GOOGLE_REDIRECT_URI') or url_for('main.auth_google_callback', _external=True, _scheme='https')
 
         token_url = 'https://oauth2.googleapis.com/token'
         client_id = current_app.config.get('GOOGLE_CLIENT_ID') or getattr(settings, 'GOOGLE_CLIENT_ID', None)
