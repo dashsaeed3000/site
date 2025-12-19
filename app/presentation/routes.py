@@ -581,15 +581,16 @@ def logout():
 @main_bp.route('/login/google')
 def login_google():
     """Start Google OAuth login"""
-    # Prefer an explicit redirect URI from config (must match Google Console)
-    redirect_uri = current_app.config.get('GOOGLE_REDIRECT_URI') or url_for('main.auth_google_callback', _external=True, _scheme='https')
+    # Use the explicit redirect URI from config (must match Google Console exactly)
+    redirect_uri = current_app.config.get('GOOGLE_REDIRECT_URI', 'https://matenco.ir/auth/google/callback')
+    
     try:
+        # Make sure we're using HTTPS in the redirect
         return current_app.oauth.google.authorize_redirect(redirect_uri)
-    except Exception:
+    except Exception as e:
+        current_app.logger.error(f'Google OAuth error: {e}')
         flash('Google OAuth پیکربندی نشده است. لطفا متغیرهای محیطی را بررسی کنید.', 'error')
         return redirect(url_for('main.login'))
-
-
 
 
 @main_bp.route('/account')
