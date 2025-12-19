@@ -616,7 +616,7 @@ def auth_google_callback():
             return redirect(url_for('main.login'))
 
         # Build redirect_uri the same way we used before
-        redirect_uri = url_for('main.auth_google_callback', _external=True, _scheme='https')
+        redirect_uri = url_for('main.auth_google_callback', _external=True)
 
         token_url = 'https://oauth2.googleapis.com/token'
         client_id = current_app.config.get('GOOGLE_CLIENT_ID') or getattr(settings, 'GOOGLE_CLIENT_ID', None)
