@@ -1245,7 +1245,7 @@ html.theme-bright #theme-toggle:hover {
     margin-bottom: 15px;
     color: var(--color-heading);
     text-transform: uppercase;
-    letter-spacing: 5px;
+    letter-spacing: 2px;
     transition: color 0.3s ease;
 }
 .services .item p {

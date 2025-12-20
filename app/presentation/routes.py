@@ -223,9 +223,88 @@ def category(slug):
     return render_template('category_children.html', parent=cat, children=children)
 
 @main_bp.route('/post')
-@main_bp.route('/post/<slug>')
+@main_bp.route('/post/<slug>', methods=['GET', 'POST'])
 def post(slug=None):
-    return render_template('post.html')
+    from ..services.blog_service import BlogService
+    from ..services.blog_comment_service import BlogCommentService
+    from admin_area.models import get_user_by_id
+
+    if not slug:
+        return redirect(url_for('main.index'))
+
+    with next(get_session()) as db:
+        blog_svc = BlogService(db)
+        blog = blog_svc.get_by_slug(slug)
+        if not blog:
+            return "پست یافت نشد", 404
+
+        # Eagerly load category and comments while session open
+        _ = blog.category
+
+        comment_svc = BlogCommentService(db)
+        comments = comment_svc.get_blog_comments(blog.Id, approved_only=True)
+        # attach replies list for template convenience
+        for c in comments:
+            c.replies_list = comment_svc.get_comment_replies(c.Id, approved_only=True)
+
+    # Handle comment submission
+    if request.method == 'POST' and 'message' in request.form:
+        body = request.form.get('message', '').strip()
+        parent_id = request.form.get('parent_id') or None
+        # associate user if logged in
+        user_id = None
+        if current_user and getattr(current_user, 'is_authenticated', False):
+            try:
+                user_id = str(current_user.get_id())
+            except Exception:
+                user_id = None
+
+        if body:
+            with next(get_session()) as db:
+                comment_svc = BlogCommentService(db)
+                try:
+                    comment_svc.create_comment(
+                        blog_id=blog.Id,
+                        body=body,
+                        parent_id=parent_id,
+                        user_id=user_id
+                    )
+                    flash('نظر شما ثبت شد و پس از تایید نمایش داده خواهد شد.', 'success')
+                except Exception:
+                    flash('خطا در ثبت نظر. لطفا دوباره تلاش کنید.', 'error')
+            return redirect(url_for('main.post', slug=slug))
+
+    # Resolve user avatars for comments (attempt to load user by id)
+    # Use existing team image as default avatar (project has img/team/1.jpg)
+    default_avatar = url_for('static', filename='img/team/1.jpg')
+    # Build a lightweight view-model for comments to avoid lazy-loading in template
+    comments_view = []
+    for c in comments:
+        user_avatar = default_avatar
+        if c.UserId:
+            try:
+                # admin_area.get_user_by_id expects int id
+                u = get_user_by_id(int(c.UserId))
+                if u and hasattr(u, 'image') and u.image:
+                    user_avatar = u.image
+            except Exception:
+                pass
+
+        replies_vm = []
+        for r in getattr(c, 'replies_list', []):
+            r_avatar = default_avatar
+            if r.UserId:
+                try:
+                    ru = get_user_by_id(int(r.UserId))
+                    if ru and hasattr(ru, 'image') and ru.image:
+                        r_avatar = ru.image
+                except Exception:
+                    pass
+            replies_vm.append({'comment': r, 'avatar': r_avatar})
+
+        comments_view.append({'comment': c, 'avatar': user_avatar, 'replies': replies_vm})
+
+    return render_template('post.html', blog=blog, comments=comments_view)
 
 
 @main_bp.route('/policy/return')

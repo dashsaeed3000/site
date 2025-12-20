@@ -219,7 +219,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#projects">محصولات</a></li>
                 <!-- <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#services">سرویس ها</a></li> -->
                 <!-- <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.post' %}active{% endif %}" href="{{ url_for('main.index') }}#blog">وبلاگ</a></li> -->
-                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.contact' %}active{% endif %}" href="{{ url_for('main.contact') }}">تماس با ما</a></li>
+                <!-- <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.contact' %}active{% endif %}" href="{{ url_for('main.contact') }}">تماس با ما</a></li> -->
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.cart' %}active{% endif %}" href="{{ url_for('main.cart') }}"><i class="ti-shopping-cart"></i> سبد خرید</a></li>
             {% if current_user.is_authenticated %}
     <li class="nav-item">

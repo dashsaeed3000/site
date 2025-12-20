@@ -12,15 +12,17 @@
 
 {% block content %}
 <!-- Post -->
-<section class="pb-90">
+<section class="pb-90  pt-50">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
+        <div class="row" >
+            <div class="col-md-4 mb-30">
                 {% if blog and blog.FeaturedImageUrl %}
-                    <img src="{{ blog.FeaturedImageUrl }}" class="mb-30" alt="{{ blog.Title }}">
+                    <img src="{{ blog.FeaturedImageUrl }}" class="img-fluid rounded" alt="{{ blog.Title }}">
                 {% else %}
-                    <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="mb-30" alt="{{ blog.Title if blog else '' }}">
+                    <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="img-fluid rounded" alt="{{ blog.Title if blog else '' }}">
                 {% endif %}
+            </div>
+            <div class="col-md-8">
                 <h2 class="section-title2">{{ blog.Title if blog else 'بدون عنوان' }}</h2>
                 <p class="text-muted">{{ (blog.PublishedAt or blog.CreatedAt)|persian_date if blog else '' }}</p>
                 <div>
@@ -28,34 +30,48 @@
                 </div>
             </div>
         </div>
-        <div class="bauen-comment-section">
+
+        <div class="bauen-comment-section mt-5">
             <div class="row">
-                <!-- Comment -->
+                <!-- Comments List -->
                 <div class="col-md-7">
-                    <div class="bauen-post-comment-wrap">
-                        <div class="bauen-user-comment"> <img src="{{ url_for('static', filename='img/team/1.jpg') }}" alt=""> </div>
-                        <div class="bauen-user-content">
-                            <h3>حسین امانی<span> 22 مرداد 1400</span></h3>
-                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است </p> 
-                            <a class="bauen-repay" href="#">پاسخ<i class="ti-back-left"></i></a> 
+                    {% if comments and comments|length > 0 %}
+                        {% for item in comments %}
+                        {% set c = item['comment'] %}
+                        <div class="bauen-post-comment-wrap mb-4">
+                            <div class="bauen-user-comment"> <img src="{{ item['avatar'] }}" alt="" class="rounded-circle" style="width:64px; height:64px; object-fit:cover;"> </div>
+                            <div class="bauen-user-content">
+                                <h5>{{ c.CreatedBy or 'مهمان' }} <span class="text-muted">{{ c.CreatedAt|persian_date }}</span></h5>
+                                <p>{{ c.Body }}</p>
+                                <a class="bauen-repay" href="#reply-form" onclick="document.getElementById('parent_id').value='{{ c.Id }}'">پاسخ<i class="ti-back-left"></i></a>
+                            </div>
                         </div>
-                    </div>
+                        {% if item.replies and item.replies|length > 0 %}
+                            {% for r in item.replies %}
+                            <div class="bauen-post-comment-wrap mb-3 ml-4" style="margin-right:64px;">
+                                <div class="bauen-user-comment"> <img src="{{ r['avatar'] }}" alt="" class="rounded-circle" style="width:48px; height:48px; object-fit:cover;"> </div>
+                                <div class="bauen-user-content">
+                                    <h6>{{ r['comment'].CreatedBy or 'مهمان' }} <span class="text-muted">{{ r['comment'].CreatedAt|persian_date }}</span></h6>
+                                    <p>{{ r['comment'].Body }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">هیچ نظری وجود ندارد.</p>
+                    {% endif %}
                 </div>
-                <!-- Contact Form -->
+                <!-- Comment Form -->
                 <div class="col-md-4 offset-md-1">
-                    <h3>پاسخ دهید</h3>
+                    <h3 id="reply-form">پاسخ دهید</h3>
                     <form method="post" class="row">
+                        <input type="hidden" name="parent_id" id="parent_id" value="">
                         <div class="col-md-12">
-                            <input type="text" name="name" id="name" placeholder="نام کامل *" required=""> 
+                            <textarea name="message" id="message" cols="40" rows="4" placeholder="کامنت شما *" required="" class="form-control"></textarea>
                         </div>
-                        <div class="col-md-12">
-                            <input type="email" name="email" id="email" placeholder="آدرس ایمیل *" required=""> 
-                        </div>
-                        <div class="col-md-12">
-                            <textarea name="message" id="message" cols="40" rows="4" placeholder="کامنت شما *" required=""></textarea>
-                        </div>
-                        <div class="col-md-12 mt-15">
-                            <button class="butn-dark"><a href="#0"><span>ارسال</span></a></button>
+                        <div class="col-md-12 mt-3">
+                            <button type="submit" class="butn-dark"><span>ارسال</span></button>
                         </div>
                     </form>
                 </div>

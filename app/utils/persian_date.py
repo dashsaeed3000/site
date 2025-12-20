@@ -1,180 +1,102 @@
 """
-Persian (Shamsi) Date Utility
-Converts Gregorian dates to Persian dates without external libraries
+Persian (Jalali) Date Utility
+
+Provides a reliable Gregorian -> Jalali conversion and Jinja filter
+`to_persian_date(date)` used across templates.
 """
 
-
-def gregorian_to_julian_day(year, month, day):
-    """Convert Gregorian date to Julian Day Number"""
-    if month <= 2:
-        year -= 1
-        month += 12
-    
-    a = year // 100
-    b = 2 - a + (a // 4)
-    
-    jd = int(365.25 * (year + 4716)) + int(30.6001 * (month + 1)) + day + b - 1524.5
-    
-    return int(jd)
+from datetime import datetime, date
 
 
-def julian_day_to_gregorian(jd):
-    """Convert Julian Day Number to Gregorian date"""
-    jd = jd + 0.5
-    z = int(jd)
-    f = jd - z
-    
-    if z < 2299161:
-        a = z
-    else:
-        alpha = int((z - 1867216.25) / 36524.25)
-        a = z + 1 + alpha - int(alpha / 4)
-    
-    b = a + 1524
-    c = int((b - 122.1) / 365.25)
-    d = int(365.25 * c)
-    e = int((b - d) / 30.6001)
-    
-    day = b - d - int(30.6001 * e) + f
-    month = e - 1 if e < 14 else e - 13
-    year = c - 4716 if month > 2 else c - 4715
-    
-    return year, month, int(day)
+def _gregorian_to_jalali(gy, gm, gd):
+    """Convert Gregorian date to Jalali (Persian) date.
 
-
-def gregorian_to_persian(year, month, day):
+    Algorithm adapted from public domain implementations used widely
+    (works for years in a normal modern range).
+    Returns (jy, jm, jd).
     """
-    Convert Gregorian date to Persian (Shamsi) date
-    
-    Args:
-        year: Gregorian year
-        month: Gregorian month (1-12)
-        day: Gregorian day
-    
-    Returns:
-        tuple: (persian_year, persian_month, persian_day)
-    """
-    jd = gregorian_to_julian_day(year, month, day)
-    
-    # Calculate Persian date
-    # Persian epoch: 226899 (Julian Day Number for 622-03-22)
-    persian_epoch = 226899
-    
-    # Days since Persian epoch
-    days_since_epoch = jd - persian_epoch
-    
-    # Persian year (approximate)
-    persian_year = int((days_since_epoch - 0.5) / 365.2422) + 1
-    
-    # Find exact year by checking
-    while True:
-        # Calculate days from epoch to start of this Persian year
-        years_since_epoch = persian_year - 1
-        leap_years = int((years_since_epoch + 2346) / 2820) * 683 + \
-                     int(((years_since_epoch + 2346) % 2820) / 128)
-        days_to_year_start = 365 * years_since_epoch + leap_years
-        
-        # Days into current year
-        day_of_year = days_since_epoch - days_to_year_start
-        
-        if day_of_year < 0:
-            persian_year -= 1
-            continue
-        
-        # Check if it's a leap year
-        is_leap = (persian_year + 2346) % 128 == 0 or \
-                  ((persian_year + 2346) % 2820 < 128 and (persian_year + 2346) % 128 < 29)
-        
-        # Days in Persian year
-        days_in_year = 366 if is_leap else 365
-        
-        if day_of_year < days_in_year:
-            break
-        persian_year += 1
-    
-    # Calculate month and day
-    if day_of_year < 186:
-        persian_month = (day_of_year // 31) + 1
-        persian_day = (day_of_year % 31) + 1
+    g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    gy2 = gy - 1600
+    gm2 = gm - 1
+    gd2 = gd - 1
+
+    g_day_no = 365 * gy2 + (gy2 + 3) // 4 - (gy2 + 99) // 100 + (gy2 + 399) // 400
+    for i in range(gm2):
+        g_day_no += g_days_in_month[i]
+    # leap year adjustment
+    if gm2 > 1 and ((gy % 4 == 0 and gy % 100 != 0) or (gy % 400 == 0)):
+        g_day_no += 1
+    g_day_no += gd2
+
+    j_day_no = g_day_no - 79
+
+    j_np = j_day_no // 12053  # 12053 = 33 years * 365 + 8 leap days
+    j_day_no = j_day_no % 12053
+
+    jy = 979 + 33 * j_np + 4 * (j_day_no // 1461)
+    j_day_no %= 1461
+
+    if j_day_no >= 366:
+        jy += (j_day_no - 366) // 365
+        j_day_no = (j_day_no - 366) % 365
+
+    jm = 0
+    jd = 0
+    if j_day_no < 186:
+        jm = 1 + j_day_no // 31
+        jd = 1 + j_day_no % 31
     else:
-        day_of_year -= 186
-        persian_month = (day_of_year // 30) + 7
-        persian_day = (day_of_year % 30) + 1
-    
-    return persian_year, persian_month, persian_day
+        j_day_no -= 186
+        jm = 7 + j_day_no // 30
+        jd = 1 + j_day_no % 30
+
+    return jy, jm, jd
 
 
 def format_persian_date(date_obj, format_str='%Y/%m/%d'):
-    """
-    Format a datetime/date object to Persian date string
-    
-    Args:
-        date_obj: datetime or date object
-        format_str: Format string with Persian placeholders
-                    %Y: Persian year (4 digits)
-                    %y: Persian year (2 digits)
-                    %m: Persian month (01-12)
-                    %d: Persian day (01-31)
-                    %B: Persian month name
-                    %A: Persian weekday name
-    
-    Returns:
-        str: Formatted Persian date string
+    """Format a date/datetime to Jalali string.
+
+    Supported placeholders: %Y, %y, %m, %d, %B, %A
     """
     if date_obj is None:
         return ''
-    
-    # Get year, month, day from date object
-    year = date_obj.year if hasattr(date_obj, 'year') else date_obj.year
-    month = date_obj.month if hasattr(date_obj, 'month') else date_obj.month
-    day = date_obj.day if hasattr(date_obj, 'day') else date_obj.day
-    
-    # Convert to Persian
-    p_year, p_month, p_day = gregorian_to_persian(year, month, day)
-    
-    # Persian month names
+
+    if isinstance(date_obj, datetime):
+        dt = date_obj
+    elif isinstance(date_obj, date):
+        dt = datetime(date_obj.year, date_obj.month, date_obj.day)
+    else:
+        # Not a date-like object
+        return ''
+
+    gy, gm, gd = dt.year, dt.month, dt.day
+    jy, jm, jd = _gregorian_to_jalali(gy, gm, gd)
+
     month_names = [
         '', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
         'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
     ]
-    
-    # Persian weekday names
+
     weekday_names = [
         'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه', 'یکشنبه'
     ]
-    
-    # Replace format placeholders
+
     result = format_str
-    result = result.replace('%Y', f'{p_year:04d}')
-    result = result.replace('%y', f'{p_year % 100:02d}')
-    result = result.replace('%m', f'{p_month:02d}')
-    result = result.replace('%d', f'{p_day:02d}')
-    result = result.replace('%B', month_names[p_month] if 1 <= p_month <= 12 else '')
-    
-    # Calculate weekday (0=Monday, 6=Sunday)
-    if hasattr(date_obj, 'weekday'):
-        weekday = date_obj.weekday()
-    else:
-        # Calculate weekday from date
-        import datetime
-        if isinstance(date_obj, datetime.datetime):
-            weekday = date_obj.weekday()
-        else:
-            weekday = datetime.date(year, month, day).weekday()
-    
+    result = result.replace('%Y', f'{jy:04d}')
+    result = result.replace('%y', f'{jy % 100:02d}')
+    result = result.replace('%m', f'{jm:02d}')
+    result = result.replace('%d', f'{jd:02d}')
+    result = result.replace('%B', month_names[jm] if 1 <= jm <= 12 else '')
+
+    # weekday: Python's weekday() -> Monday=0 .. Sunday=6
+    weekday = dt.weekday()
     result = result.replace('%A', weekday_names[weekday] if 0 <= weekday <= 6 else '')
-    
+
     return result
 
 
 def to_persian_date(date_obj):
-    """
-    Convert datetime/date object to Persian date string (default format: YYYY/MM/DD)
-    
-    Args:
-        date_obj: datetime or date object
-    
-    Returns:
-        str: Persian date in format YYYY/MM/DD
-    """
+    """Jinja filter entrypoint: returns YYYY/MM/DD by default."""
     return format_persian_date(date_obj, '%Y/%m/%d')
+
