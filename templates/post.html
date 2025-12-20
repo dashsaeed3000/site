@@ -17,9 +17,13 @@
         <div class="row" >
             <div class="col-md-5 mb-30">
                 {% if blog and blog.FeaturedImageUrl %}
-                    <img src="{{ blog.FeaturedImageUrl }}" class="img-fluid rounded" alt="{{ blog.Title }}">
+                    <a href="#" onclick="openImageModal('{{ blog.FeaturedImageUrl }}'); return false;" title="مشاهده تصویر">
+                        <img src="{{ blog.FeaturedImageUrl }}" class="img-fluid rounded" alt="{{ blog.Title }}">
+                    </a>
                 {% else %}
-                    <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="img-fluid rounded" alt="{{ blog.Title if blog else '' }}">
+                    <a href="#" onclick="openImageModal('{{ url_for('static', filename='img/slider/1.jpg') }}'); return false;" title="مشاهده تصویر">
+                        <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="img-fluid rounded" alt="{{ blog.Title if blog else '' }}">
+                    </a>
                 {% endif %}
             </div>
             <div class="col-md-7">
@@ -79,4 +83,61 @@
         </div>
     </div>
 </section>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">مشاهده تصویر</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div style="overflow:auto;">
+                    <img id="modalImage" src="" alt="" style="max-width:100%; max-height:80vh; transition: transform .2s ease;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="mr-auto">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="zoomImage(-0.1)">-</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetImage()">ریست</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="zoomImage(0.1)">+</button>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openImageModal(url) {
+        try {
+            var img = document.getElementById('modalImage');
+            img.src = url;
+            img.style.transform = 'scale(1)';
+            img.dataset.scale = '1';
+            $('#imageModal').modal('show');
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function zoomImage(delta) {
+        var img = document.getElementById('modalImage');
+        if (!img) return;
+        var s = parseFloat(img.dataset.scale || '1');
+        s = Math.max(0.1, s + delta);
+        img.dataset.scale = s.toString();
+        img.style.transform = 'scale(' + s + ')';
+    }
+
+    function resetImage() {
+        var img = document.getElementById('modalImage');
+        if (!img) return;
+        img.dataset.scale = '1';
+        img.style.transform = 'scale(1)';
+    }
+</script>
 {% endblock %}
