@@ -204,7 +204,7 @@
             <div class="logo">
                 <a href="{{ url_for('main.index') }}"> 
                     <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo-img" alt="">
-                    <h2>شرکت<span>طراحی نوآورانه</span></h2>
+                    <h4>شرکت<span>طراحی نوآورانه</span></h4>
                 </a>
             </div>
         </div>
@@ -213,7 +213,7 @@
         </button>
         <!-- Navbar links -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">خانه</a></li>
                 <!-- <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#about">درباره ما</a></li> -->
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#projects">محصولات</a></li>

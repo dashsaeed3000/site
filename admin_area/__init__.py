@@ -76,7 +76,7 @@ def init_admin_area(app: Flask):
     # For production, move all Sash assets to static/sash/assets and update the blueprint route if needed.
 
     # Initialize Flask-Admin
-    admin.init_app(app, index_view=AdminIndexView(name='Home', url='/admin'))
+    admin.init_app(app, index_view=AdminIndexView(name='خانه', url='/admin'))
 
     # Register admin views
     from .models import Post, User
@@ -102,7 +102,7 @@ def init_admin_area(app: Flask):
     admin.add_view(SiteContentAdminView(SiteContent, Session, name='محتوای سایت'))
 
     # Sample Post model from admin_area (you can remove this if not needed)
-    admin.add_view(PostModelView(Post, Session, name='Posts', endpoint='posts'))
+    admin.add_view(PostModelView(Post, Session, name='پست ها', endpoint='posts'))
 
     # Register admin view for local admin users table so `/admin/users/` works
     admin.add_view(UserAdminView(User, Session, name='کاربران', endpoint='users'))

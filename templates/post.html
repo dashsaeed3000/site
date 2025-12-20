@@ -16,10 +16,16 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="mb-30" alt="">
-                <h2 class="section-title2">لورم ایپسوم متن ساختگی با تولید سادگی </h2>
-                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده </p>
-                <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده </p>
+                {% if blog and blog.FeaturedImageUrl %}
+                    <img src="{{ blog.FeaturedImageUrl }}" class="mb-30" alt="{{ blog.Title }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="mb-30" alt="{{ blog.Title if blog else '' }}">
+                {% endif %}
+                <h2 class="section-title2">{{ blog.Title if blog else 'بدون عنوان' }}</h2>
+                <p class="text-muted">{{ (blog.PublishedAt or blog.CreatedAt)|persian_date if blog else '' }}</p>
+                <div>
+                    {{ blog.Body|safe if blog and blog.Body else '' }}
+                </div>
             </div>
         </div>
         <div class="bauen-comment-section">

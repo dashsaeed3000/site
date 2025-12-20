@@ -5,7 +5,8 @@ from datetime import datetime
 from ..config.settings import settings
 from ..repositories.db import get_session
 from ..services.product_service import ProductService
-from ..models.models import Categories, Products
+from ..services.blog_service import BlogService
+from ..models.models import Categories, Products,Blogs
 from ..services.site_content_service import SiteContentService
 from ..services.comment_service import CommentService
 from ..services.cart_service import CartService
@@ -91,13 +92,23 @@ def index():
         # Convert products to list to detach from session properly
         products_list = list(products)
     
+        # Use BlogService to load published posts
+        blog_svc = BlogService(db)
+        try:
+            blogs = blog_svc.list_published(limit=6)
+        except Exception:
+            blogs = []
+
+
     return render_template('index.html', 
                          products=products_list,
                          site_content=site_content,
                          sliders=sliders,
                          testimonials=testimonials,
                          services=services,
-                         parent_categories=parent_categories)
+                         parent_categories=parent_categories,
+                         blogs=blogs
+                         )
 
 @main_bp.route('/product/<slug>', methods=['GET', 'POST'])
 def product_detail(slug):
@@ -934,3 +945,16 @@ def uploaded_file(filename):
     if file_path.exists():
         return send_from_directory(str(upload_folder), filename)
     return "File not found", 404
+
+
+@main_bp.route('/blog/<slug>')
+def blog_detail(slug):
+    with next(get_session()) as db:
+        blog_svc = BlogService(db)
+        blog = blog_svc.get_by_slug(slug)
+        if not blog:
+            return "مقاله مورد نظر یافت نشد", 404
+        # eager-load category
+        _ = getattr(blog, 'category', None)
+
+    return render_template('post.html', blog=blog)

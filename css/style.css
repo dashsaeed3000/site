@@ -508,7 +508,7 @@ html.theme-bright #theme-toggle:hover {
     -webkit-box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(30px);
 }
 .nav-scroll .icon-bar {
     color: #fff;
@@ -1002,7 +1002,7 @@ html.theme-bright #theme-toggle:hover {
 
 /* ======= Page Banner Header style ======= */
 .banner-header {
-    height: 28vh;
+    height: 27vh;
     z-index: -2;
 }
 .banner-header h6 {

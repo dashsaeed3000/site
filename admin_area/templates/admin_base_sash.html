@@ -66,6 +66,35 @@
 			margin-left: 10px;
 			margin-right: 0;
 		}
+		
+		/* Ensure boolean fields (checkboxes) are visible and clickable in Flask-Admin forms.
+		   Keep styling minimal to avoid interfering with Sash JS/markup. */
+		.form-check, .custom-control, .form-group .form-check {
+			display: flex !important;
+			align-items: center !important;
+			gap: 8px !important;
+		}
+
+		input[type="checkbox"], .form-check-input, .custom-control-input {
+			display: inline-block !important;
+			visibility: visible !important;
+			opacity: 1 !important;
+			width: auto !important;
+			height: auto !important;
+			-webkit-appearance: checkbox !important;
+			-moz-appearance: checkbox !important;
+			appearance: checkbox !important;
+			background: none !important;
+			border-radius: 0 !important;
+			position: static !important;
+			cursor: pointer !important;
+			transition: none !important;
+		}
+
+		/* Labels next to switches should be clickable */
+		.form-check-label, label[for] {
+			cursor: pointer !important;
+		}
 		.form-group {
 			direction: rtl;
 		}
@@ -96,6 +125,70 @@
 		@media (max-width: 1170px) {
 			section.content, section.content.home { margin-right: 0 !important; }
 		}
+
+		/* Prevent horizontal scrolling caused by Sash layout / wide tables */
+		html, body {
+			overflow-x: hidden !important;
+		}
+
+		/* Make sure container fluid does not cause overflow */
+		.container-fluid {
+			max-width: 100% !important;
+			box-sizing: border-box;
+		}
+
+		/* Style checkboxes as toggle switches globally in admin sash */
+		input[type="checkbox"] {
+			/* remove default appearance so we can style it */
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			width: 44px;
+			height: 24px;
+			background: #c8ccd4;
+			border-radius: 999px;
+			position: relative;
+			vertical-align: middle;
+			cursor: pointer;
+			outline: none;
+			transition: background .2s ease-in-out;
+			margin-left: 8px; /* spacing for RTL */
+		}
+
+		input[type="checkbox"]::after {
+			content: "";
+			position: absolute;
+			left: 4px;
+			top: 3px;
+			width: 18px;
+			height: 18px;
+			background: #fff;
+			border-radius: 50%;
+			box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+			transition: transform .2s ease-in-out;
+		}
+
+		input[type="checkbox"]:checked {
+			background: #4cd964;
+		}
+
+		input[type="checkbox"]:checked::after {
+			transform: translateX(20px);
+		}
+
+		/* Ensure checkbox labels are visible and align RTL */
+		.form-check-label, label {
+			display: inline-block;
+			vertical-align: middle;
+			color: #222;
+		}
+
+		/* Reduce wide table overflow in admin list views */
+	
+table.table-responsive, .table-responsive {
+		max-width: 100% !important;
+		overflow-x: auto !important;
+	}
 	</style>
 	
 	{% block head %}
@@ -136,10 +229,7 @@
 			</div>
 			<!-- Menu -->
 			<div class="menu main-sidebar">
-				<ul class="list">
-					<li class="nav-item">
-						<a class="nav-link" href="{{ admin_view.admin.url }}"><i class="fe fe-home sidemenu-icon"></i><span class="sidemenu-label">داشبورد</span></a>
-					</li>
+				<ul class="list"> 
 					{% block main_menu %}
 						{% set menu_items = admin_view.admin.menu() %}
 						{% set seen = [] %}
