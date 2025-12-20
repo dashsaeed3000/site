@@ -201,10 +201,10 @@
     <nav class="navbar navbar-expand-lg">
         <!-- Logo -->
         <div class="logo-wrapper valign">
-            <div class="logo">
+            <div class="logo text-center">
                 <a href="{{ url_for('main.index') }}"> 
                     <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo-img" alt="">
-                    <h4>شرکت<span>طراحی نوآورانه</span></h4>
+                    <h6>متِن<span><small>گروه بازرگانی و تجاری</small></span></h6>
                 </a>
             </div>
         </div>
@@ -212,7 +212,7 @@
             <span class="icon-bar"><i class="ti-line-double"></i></span> 
         </button>
         <!-- Navbar links -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse pr-5" id="navbarSupportedContent">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">خانه</a></li>
                 <!-- <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#about">درباره ما</a></li> -->

@@ -15,14 +15,14 @@
 <section class="pb-90  pt-50">
     <div class="container">
         <div class="row" >
-            <div class="col-md-4 mb-30">
+            <div class="col-md-5 mb-30">
                 {% if blog and blog.FeaturedImageUrl %}
                     <img src="{{ blog.FeaturedImageUrl }}" class="img-fluid rounded" alt="{{ blog.Title }}">
                 {% else %}
                     <img src="{{ url_for('static', filename='img/slider/1.jpg') }}" class="img-fluid rounded" alt="{{ blog.Title if blog else '' }}">
                 {% endif %}
             </div>
-            <div class="col-md-8">
+            <div class="col-md-7">
                 <h2 class="section-title2">{{ blog.Title if blog else 'بدون عنوان' }}</h2>
                 <p class="text-muted">{{ (blog.PublishedAt or blog.CreatedAt)|persian_date if blog else '' }}</p>
                 <div>
